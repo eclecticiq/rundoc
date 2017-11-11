@@ -2,6 +2,9 @@
 Main module for rundoc command line utility.
 """
 from bs4 import BeautifulSoup
+from pygments import highlight
+from pygments.formatters import TerminalFormatter
+from pygments.lexers import get_lexer_by_name
 import argcomplete
 import argparse
 import json
@@ -42,6 +45,12 @@ class DocCode(object):
         self.process = None
         self.output = { 'stdout':'', 'retcode':None }
 
+    def __str__(self):
+        code = self.user_code.strip() or self.code
+        lexer = get_lexer_by_name(self.interpreter, stripall=True)
+        formatter = TerminalFormatter()
+        return highlight(code, lexer, formatter)
+
     def get_dict(self):
         return {
             'interpreter': self.interpreter,
@@ -55,12 +64,6 @@ class DocCode(object):
         line = self.process.stdout.readline().decode('utf-8')
         self.output['stdout'] += line
         print(line, end='')
-
-    def print_stderr(self):
-        assert self.process
-        line = self.process.stderr.readline()
-        self.output['stderr'] += line
-        print(line.decode('utf-8'), end='')
 
     def is_running(self):
         return self.process and self.process.poll() is None
@@ -115,7 +118,7 @@ class DocCommander(object):
 
     def ask_user(self, doc_code):
         doc_code.user_code= input(
-            doc_code.code + '  '
+            str(doc_code) + '  '
             )
 
     def run(self, step=1, yes=False):
@@ -144,7 +147,7 @@ class DocCommander(object):
                 )
             )
             if yes:
-                print(doc_code.code, end='')
+                print(doc_code, end='')
             else:
                 self.ask_user(doc_code) # let user modify the code
             print("────")
