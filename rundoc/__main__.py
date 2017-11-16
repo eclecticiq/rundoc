@@ -46,10 +46,17 @@ class DocCode(object):
         self.output = { 'stdout':'', 'retcode':None }
 
     def __str__(self):
+        lexer = None
         code = self.user_code.strip() or self.code
-        lexer = get_lexer_by_name(self.interpreter, stripall=True)
+        try:
+            # try because lexer may not exist for current interpreter
+            lexer = get_lexer_by_name(self.interpreter, stripall=True)
+        except:
+            # no lexer, return plain text
+            return code
         formatter = TerminalFormatter()
         return highlight(code, lexer, formatter)
+
 
     def get_dict(self):
         return {
