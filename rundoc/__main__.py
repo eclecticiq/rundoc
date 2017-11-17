@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 import markdown
+import os
 import re
 import signal
 import subprocess
@@ -96,9 +97,11 @@ class DocCode(object):
 
 class DocCommander(object):
     """
-    Manages DocCode objects and executes them in succession.
+    Manages environment and DocCode objects and executes them in succession.
     """
     def __init__(self):
+        self.env = {}
+        self.env_lines = []
         self.doc_codes = []
         self.running = False
         self.failed = False
@@ -124,9 +127,32 @@ class DocCommander(object):
         self.doc_codes.append(DocCode(code, interpreter))
 
     def ask_user(self, doc_code):
-        doc_code.user_code= input(
+        doc_code.user_code = input(
             str(doc_code) + '  '
             )
+
+    def set_env(self, env_string):
+        for line in env_string.strip().split('\n'):
+            if not line: continue
+            if '=' not in line:
+                logging.error('{}\n^ Bad environment entry.'.format(line))
+                sys.exit(0)
+            var, value = line.split('=', 1)
+            var = var.strip()
+            value = value.strip()
+            if not var: continue
+            self.env_lines.append((var, value))
+
+    def __load_env(self, yes=False):
+        if len(self.env_lines) and not yes:
+            msg = "\n{}═══╣ Confirm/supply/modify environment variables:{}"
+            msg = msg.format(clr.BOLD, clr.END)
+            print(msg)
+        for var, value in self.env_lines:
+            user_env = value or os.environ.get(var, '')
+            if not yes:
+                user_env = input('{}={}  '.format(var, user_env)) or user_env
+            os.environ[var] = user_env
 
     def run(self, step=1, yes=False):
         """Run all the doc_codes one by one starting from `step`.
@@ -143,6 +169,7 @@ class DocCommander(object):
         logging.debug('Running DocCommander.')
         assert self.running == False
         assert self.failed == False
+        self.__load_env(yes=yes)
         self.running = True
         for doc_code in self.doc_codes[step-1:]:
             logging.debug("Beginning of step {}".format(step))
@@ -285,7 +312,7 @@ def parse_doc(mkd_file_path, tags=""):
     soup = BeautifulSoup(html_data, 'html.parser')
     # collect all elements with selected tags as classes
     classes = re.compile(
-        "^({})$".format('|'.join(tags.split(','))) if tags else '.*'
+        "^({})$".format('|'.join(tags.split(','))) if tags else '^(?!env).*'
         )
     code_block_elements = soup.findAll('code', attrs={"class":classes,})
     commander = DocCommander()
@@ -298,6 +325,10 @@ def parse_doc(mkd_file_path, tags=""):
             element.getText(),
             interpreter
         )
+    classes = re.compile("^env(iron(ment)?)?$")
+    env_elements = soup.findAll('code', attrs={"class":classes,})
+    env_string = "\n".join([ x.string for x in env_elements ])
+    commander.set_env(env_string)
     return commander
 
 def parse_output(output_file_path):
