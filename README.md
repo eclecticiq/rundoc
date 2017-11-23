@@ -103,4 +103,22 @@ If you want to further isolate code blocks of the same highlight tag, you can us
 
 In this syntax, multiple tags are applied to same code block and are separated with underscore `_`. In the example above there are 3 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
 
+### Environment variables
+
+You can define required environment variables anywhere in the documentaion as a spectial code block tagged as `env`:
+
+~~~markdown
+ ```env
+ var1=
+ var2=
+ var3=default_value_3
+ var4=default_value_4
+ ```
+~~~
+
+- As in example above, define variables one on each line.
+- When you run the docs you will be prompted for those.
+- Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value.
+- If you used `-y` option, you will be prompted only for variables that have empty values and are not exported in your current system environment.
+- All variables will be passed to env for every code block that's being executed.
 

@@ -18,7 +18,6 @@ import markdown
 import os
 import re
 import rundoc
-import signal
 import subprocess
 import sys
 
@@ -127,17 +126,7 @@ class DocCommander(object):
         self.running = False
         self.failed = False
         self.current_doc_code = None
-        signal.signal(signal.SIGINT, self.__signal_handler)
-
-    def __signal_handler(self, signal, frame):
-        """Handle keyboard interrupt."""
-        logging.debug('KeyboardInterrupt received.')
-        sys.stderr.write(
-            "\nKeyboardInterrupt captured. Stopping rundoc gracefully.\n")
-        if self.current_doc_code:
-            self.current_doc_code.kill()
-        else:
-            sys.exit(1)
+        self.current_step = None
 
     def get_dict(self):
         return [ x.get_dict() for x in self.doc_codes ]
@@ -167,8 +156,21 @@ class DocCommander(object):
         for var, value in self.env_lines:
             user_env = value or os.environ.get(var, '')
             if not yes or not user_env:
-                user_env = input('{}={}  '.format(var, user_env)) or user_env
+                user_env = prompt(
+                    '{}  '.format(var),
+                    default = user_env,
+                    )
             os.environ[var] = user_env
+
+    def die_with_grace(self):
+        if self.running:
+            self.current_doc_code.kill()
+            print("\n==== {}Quit at step {} with keyboard interrupt.{}\n".format(
+                clr.RED,
+                self.current_step,
+                clr.END,
+                )
+            )
 
     def run(self, step=1, yes=False, pause=0):
         """Run all the doc_codes one by one starting from `step`.
@@ -188,6 +190,8 @@ class DocCommander(object):
         self.__load_env(yes=yes)
         self.running = True
         for doc_code in self.doc_codes[step-1:]:
+            self.current_step = step
+            self.current_doc_code = doc_code
             logging.debug("Beginning of step {}".format(step))
             prompt_text = "\n{}=== Step {} [{}]{}".format(
                 clr.BOLD,
@@ -201,7 +205,6 @@ class DocCommander(object):
                 sleep(pause)
             else:
                 doc_code.prompt_user()
-            self.current_doc_code = doc_code
             self.current_doc_code.run() # run in blocking manner
             if doc_code.output['retcode'] == 0:
                 logging.debug("Step {} finished.".format(step))
@@ -391,12 +394,20 @@ def main():
             ))
         sys.exit(0)
     output = ""
+
     if args.cmd == 'run':
         commander = parse_doc(args.mkd_file_path, tags=args.tags)
-        output = commander.run(step=args.step, yes=args.yes, pause=args.pause)
+        try:
+            output = commander.run(
+                step=args.step, yes=args.yes, pause=args.pause)
+        except KeyboardInterrupt:
+            commander.die_with_grace()
     if args.cmd == 'rerun':
         commander = parse_output(args.saved_output_path)
-        output = commander.run(step=args.step, yes=True)
+        try:
+            output = commander.run(step=args.step, yes=True)
+        except KeyboardInterrupt:
+            commander.die_with_grace()
     if args.cmd in ('rerun', 'run') and args.output:
         with open(args.output, 'w+') as f:
             f.write(output)
