@@ -23,6 +23,7 @@ setup(
         'argcomplete>=1.9.2',
         'bs4',
         'pygments>=2.2.0',
+        'prompt_toolkit>=1.0.15',
     ],
     python_requires=">=3.4.7",
 )
