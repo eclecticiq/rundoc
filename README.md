@@ -19,14 +19,14 @@ Rundoc collects fenced code blocks from input markdown file and executes them in
 
 Example of fenced code block in markdown file:
 
-```markdown
+~~~markdown
  ```bash
  for x in `seq 0 10`; do
      echo $x
      sleep 1
  done
  ```
-```
+~~~
 
 Interpreter will be automatically selected using the highlight tag of the code block (in our example `bash`). If highlight tag is not specified, bash will be used by default.
 
@@ -95,11 +95,11 @@ This will execute only those code blocks that have specified highlight tag.
 
 If you want to further isolate code blocks of the same highlight tag, you can use rundoc tag syntax, e.g.:
 
-```markdown
+~~~markdown
  ```bash_custom-branch_v2_test
  echo "custom-tagged code block"
  ```
-```
+~~~
 
 In this syntax, multiple tags are applied to same code block and are separated with underscore `_`. In the example above there are 3 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
 
