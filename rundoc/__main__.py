@@ -2,9 +2,13 @@
 Main module for rundoc command line utility.
 """
 from bs4 import BeautifulSoup
+from prompt_toolkit import prompt
+from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
-from pygments.formatters import TerminalFormatter
+from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
+from pygments.styles.tango import TangoStyle
+from pygments.styles.vim import VimStyle
 import argcomplete
 import argparse
 import json
@@ -12,6 +16,7 @@ import logging
 import markdown
 import os
 import re
+import rundoc
 import signal
 import subprocess
 import sys
@@ -46,18 +51,25 @@ class DocCode(object):
         self.process = None
         self.output = { 'stdout':'', 'retcode':None }
 
-    def __str__(self):
-        lexer = None
-        code = self.user_code.strip() or self.code
+    def get_lexer_class(self):
+        lexer_class = None
         try:
             # try because lexer may not exist for current interpreter
-            lexer = get_lexer_by_name(self.interpreter, stripall=True)
+            return get_lexer_by_name(self.interpreter).__class__
         except:
             # no lexer, return plain text
-            return code
-        formatter = TerminalFormatter()
-        return highlight(code, lexer, formatter)
+            return None
 
+    def __str__(self):
+        lexer_class = self.get_lexer_class()
+        code = self.user_code.strip() or self.code
+        if lexer_class:
+            return highlight(
+                code,
+                lexer_class(),
+                Terminal256Formatter(style=VimStyle)
+                )
+        return code
 
     def get_dict(self):
         return {
@@ -66,6 +78,14 @@ class DocCode(object):
             'user_code': self.user_code,
             'output': self.output,
         }
+
+    def prompt_user(self, prompt_text=' '):
+        self.user_code = prompt(
+            prompt_text,
+            default = self.code,
+            lexer = self.get_lexer_class(),
+            style = style_from_pygments(VimStyle)
+            )
 
     def print_stdout(self):
         assert self.process
@@ -126,11 +146,6 @@ class DocCommander(object):
             interpreter = 'bash'
         self.doc_codes.append(DocCode(code, interpreter))
 
-    def ask_user(self, doc_code):
-        doc_code.user_code = input(
-            str(doc_code) + '  '
-            )
-
     def set_env(self, env_string):
         for line in env_string.strip().split('\n'):
             if not line: continue
@@ -150,7 +165,7 @@ class DocCommander(object):
             print(msg)
         for var, value in self.env_lines:
             user_env = value or os.environ.get(var, '')
-            if not yes:
+            if not yes or not user_env:
                 user_env = input('{}={}  '.format(var, user_env)) or user_env
             os.environ[var] = user_env
 
@@ -173,18 +188,17 @@ class DocCommander(object):
         self.running = True
         for doc_code in self.doc_codes[step-1:]:
             logging.debug("Beginning of step {}".format(step))
-            print("\n{}═══╣ Step {} ({}){}".format(
+            prompt_text = "\n{}=== Step {} [{}]{}".format(
                 clr.BOLD,
                 step,
                 doc_code.interpreter,
                 clr.END,
                 )
-            )
+            print(prompt_text)
             if yes:
-                print(doc_code, end='')
+                print(doc_code)
             else:
-                self.ask_user(doc_code) # let user modify the code
-            print("────")
+                doc_code.prompt_user()
             self.current_doc_code = doc_code
             self.current_doc_code.run() # run in blocking manner
             if doc_code.output['retcode'] == 0:
@@ -194,7 +208,7 @@ class DocCommander(object):
             if self.failed:
                 self.running = False
                 logging.error('Failed on step {}'.format(step))
-                print("───┤ {}Failed at step {} with exit code '{}'{}\n".format(
+                print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                     clr.RED,
                     step,
                     doc_code.output['retcode'],
@@ -204,7 +218,7 @@ class DocCommander(object):
                 self.current_doc_code = None
                 break
             self.current_doc_code = None
-            print("───┤ {}done{}\n".format(clr.GREEN, clr.END))
+            print("{}==== Step {} done{}\n".format(clr.GREEN, step, clr.END))
             step += 1
         return json.dumps(self.get_dict(), sort_keys=True, indent=4)
 
