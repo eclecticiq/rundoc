@@ -326,7 +326,7 @@ def parse_doc(mkd_file_path, tags=""):
     soup = BeautifulSoup(html_data, 'html.parser')
     # collect all elements with selected tags as classes
     classes = re.compile(
-        "^({})$".format('|'.join(tags.split(','))) if tags else '^(?!env).*'
+        "(^|_)({})(_|$)".format('|'.join(tags.split(','))) if tags else '^(?!env).*'
         )
     code_block_elements = soup.findAll('code', attrs={"class":classes,})
     commander = DocCommander()
