@@ -50,6 +50,12 @@ You can use `-y` option to skip prompts and execute all code blocks without user
 rundoc run -y input.md
 ```
 
+If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the puase. This works only in conjunction with `-y`:
+
+```bash
+rundoc run -y -p 2 input.md
+```
+
 ### Start from specific step
 
 You can start at specified step using `-s` or `--step` option:

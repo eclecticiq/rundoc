@@ -9,6 +9,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
 from pygments.styles.tango import TangoStyle
 from pygments.styles.vim import VimStyle
+from time import sleep
 import argcomplete
 import argparse
 import json
@@ -169,7 +170,7 @@ class DocCommander(object):
                 user_env = input('{}={}  '.format(var, user_env)) or user_env
             os.environ[var] = user_env
 
-    def run(self, step=1, yes=False):
+    def run(self, step=1, yes=False, pause=0):
         """Run all the doc_codes one by one starting from `step`.
 
         Args:
@@ -197,6 +198,7 @@ class DocCommander(object):
             print(prompt_text)
             if yes:
                 print(doc_code)
+                sleep(pause)
             else:
                 doc_code.prompt_user()
             self.current_doc_code = doc_code
@@ -258,6 +260,11 @@ def __parse_args():
             use bash as default interpreter.'''
         )
     parser_run.add_argument(
+        "-p", "--pause", type=int, action="store",
+        help='''Used in combination with -y. Pause N seconds before each code
+                block. Defaults to 0.'''
+        )
+    parser_run.add_argument(
         "-s", "--step", type=int, action="store",
         help="Start at step STEP. Defaults to 1."
         )
@@ -274,6 +281,7 @@ def __parse_args():
         )
     parser_run.set_defaults(
         tags="",
+        pause=0,
         step=1,
         output=None,
         )
@@ -385,7 +393,7 @@ def main():
     output = ""
     if args.cmd == 'run':
         commander = parse_doc(args.mkd_file_path, tags=args.tags)
-        output = commander.run(step=args.step, yes=args.yes)
+        output = commander.run(step=args.step, yes=args.yes, pause=args.pause)
     if args.cmd == 'rerun':
         commander = parse_output(args.saved_output_path)
         output = commander.run(step=args.step, yes=True)
