@@ -70,12 +70,14 @@ This is useful when your N-th code block exits with error and you want to contin
 
 Output can be saved as a json list of executed code blocks containing:
 
-- `code`: original code
-- `user_code`: code that user actually executed with prompt
-- `interpreter`: interpreter used for this code block
-- `output`
-    - `stdout`: complete stdout of the code block
-    - `retcode`: exit code of the code block
+- `commands`: list of code blocks that contains the following
+    - `code`: original code
+    - `user_code`: code that user actually executed with prompt
+    - `interpreter`: interpreter used for this code block
+    - `output`
+        - `stdout`: complete stdout of the code block
+        - `retcode`: exit code of the code block
+- `env`: dictionary of set environment variables for the session
 
 To save output use `-o` or `--output` option:
 
