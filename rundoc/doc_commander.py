@@ -61,7 +61,7 @@ class OrderedEnv(OrderedDict):
             val = val.strip()
             if not var:
                 raise BadEnv("Bad environment line: {}".format(line))
-            self.append(var, val, collect_existing_env=False)
+            self.append(var, val, collect_existing_env)
 
     def prompt(self):
         if not len(self):
