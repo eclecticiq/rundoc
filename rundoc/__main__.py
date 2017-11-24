@@ -1,231 +1,13 @@
 """
 Main module for rundoc command line utility.
 """
-from bs4 import BeautifulSoup
-from prompt_toolkit import prompt
-from prompt_toolkit.styles import style_from_pygments
-from pygments import highlight
-from pygments.formatters import Terminal256Formatter
-from pygments.lexers import get_lexer_by_name
-from pygments.styles.tango import TangoStyle
-from pygments.styles.vim import VimStyle
-from time import sleep
+from rundoc import BadEnv
+from rundoc.doc_commander import parse_doc, parse_output 
 import argcomplete
 import argparse
-import json
 import logging
-import markdown
-import os
-import re
 import rundoc
-import subprocess
 import sys
-
-class clr:
-    ''' 
-    ANSI colors for pretty output.
-    '''
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    BLUE = '\033[94m'
-    YELLOW = '\033[93m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
-
-class DocCode(object):
-    """Single multi-line code block executed as a script.
-
-    Attributes:
-        interpreter (str): Interpreter used to run the code.
-        code (str): Base code loaded during initialization.
-        user_code (str): User modified version of the code (will be used
-            instead if is not None or empty string).
-        process (subprocess.Popen): Process object running the interpreter.
-        output (dict): Dictinary containing 'stdout' and 'retcode'.
-    """
-    def __init__(self, code, interpreter):
-        self.interpreter = interpreter
-        self.code = code
-        self.user_code = ''
-        self.process = None
-        self.output = { 'stdout':'', 'retcode':None }
-
-    def get_lexer_class(self):
-        lexer_class = None
-        try:
-            # try because lexer may not exist for current interpreter
-            return get_lexer_by_name(self.interpreter).__class__
-        except:
-            # no lexer, return plain text
-            return None
-
-    def __str__(self):
-        lexer_class = self.get_lexer_class()
-        code = self.user_code.strip() or self.code
-        if lexer_class:
-            return highlight(
-                code,
-                lexer_class(),
-                Terminal256Formatter(style=VimStyle)
-                )
-        return code
-
-    def get_dict(self):
-        return {
-            'interpreter': self.interpreter,
-            'code': self.code,
-            'user_code': self.user_code,
-            'output': self.output,
-        }
-
-    def prompt_user(self, prompt_text=' '):
-        self.user_code = prompt(
-            prompt_text,
-            default = self.code,
-            lexer = self.get_lexer_class(),
-            style = style_from_pygments(VimStyle)
-            )
-
-    def print_stdout(self):
-        assert self.process
-        line = self.process.stdout.readline().decode('utf-8')
-        self.output['stdout'] += line
-        print(line, end='')
-
-    def is_running(self):
-        return self.process and self.process.poll() is None
-
-    def run(self):
-        if not self.process:
-            code = self.user_code.strip() or self.code
-            logging.debug('Running code {}'.format(code))
-            self.process = subprocess.Popen(
-                [self.interpreter, '-c', code],
-                stdout=subprocess.PIPE,
-                stderr=sys.stdout.buffer,
-                shell=False,
-                )
-        while self.is_running():
-            self.print_stdout()
-        self.output['retcode'] = self.process.poll()
-
-    def kill(self):
-        if self.process:
-             self.process.kill()
-
-
-class DocCommander(object):
-    """
-    Manages environment and DocCode objects and executes them in succession.
-    """
-    def __init__(self):
-        self.env = {}
-        self.env_lines = []
-        self.doc_codes = []
-        self.running = False
-        self.failed = False
-        self.current_doc_code = None
-        self.current_step = None
-
-    def get_dict(self):
-        return [ x.get_dict() for x in self.doc_codes ]
-
-    def add(self, code, interpreter='bash'):
-        if not interpreter:
-            interpreter = 'bash'
-        self.doc_codes.append(DocCode(code, interpreter))
-
-    def set_env(self, env_string):
-        for line in env_string.strip().split('\n'):
-            if not line: continue
-            if '=' not in line:
-                logging.error('{}\n^ Bad environment entry.'.format(line))
-                sys.exit(0)
-            var, value = line.split('=', 1)
-            var = var.strip()
-            value = value.strip()
-            if not var: continue
-            self.env_lines.append((var, value))
-
-    def __load_env(self, yes=False):
-        if len(self.env_lines) and not yes:
-            msg = "\n{}═══╣ Confirm/supply/modify environment variables:{}"
-            msg = msg.format(clr.BOLD, clr.END)
-            print(msg)
-        for var, value in self.env_lines:
-            user_env = value or os.environ.get(var, '')
-            if not yes or not user_env:
-                user_env = prompt(
-                    '{}  '.format(var),
-                    default = user_env,
-                    )
-            os.environ[var] = user_env
-
-    def die_with_grace(self):
-        if self.running:
-            self.current_doc_code.kill()
-            print("\n==== {}Quit at step {} with keyboard interrupt.{}\n".format(
-                clr.RED,
-                self.current_step,
-                clr.END,
-                )
-            )
-
-    def run(self, step=1, yes=False, pause=0):
-        """Run all the doc_codes one by one starting from `step`.
-
-        Args:
-            step (int): Number of step to start with. Defaults to 1. Steps
-                start at 1.
-            yes (bool): Auto-confirm all steps without user interaction.
-                Defaults to False.
-
-        Returns:
-            JSON representation of commands and outputs.
-        """
-        logging.debug('Running DocCommander.')
-        assert self.running == False
-        assert self.failed == False
-        self.__load_env(yes=yes)
-        self.running = True
-        for doc_code in self.doc_codes[step-1:]:
-            self.current_step = step
-            self.current_doc_code = doc_code
-            logging.debug("Beginning of step {}".format(step))
-            prompt_text = "\n{}=== Step {} [{}]{}".format(
-                clr.BOLD,
-                step,
-                doc_code.interpreter,
-                clr.END,
-                )
-            print(prompt_text)
-            if yes:
-                print(doc_code)
-                sleep(pause)
-            else:
-                doc_code.prompt_user()
-            self.current_doc_code.run() # run in blocking manner
-            if doc_code.output['retcode'] == 0:
-                logging.debug("Step {} finished.".format(step))
-            else:
-                self.failed = True
-            if self.failed:
-                self.running = False
-                logging.error('Failed on step {}'.format(step))
-                print("==== {}Failed at step {} with exit code '{}'{}\n".format(
-                    clr.RED,
-                    step,
-                    doc_code.output['retcode'],
-                    clr.END,
-                    )
-                )
-                self.current_doc_code = None
-                break
-            self.current_doc_code = None
-            print("{}==== Step {} done{}\n".format(clr.GREEN, step, clr.END))
-            step += 1
-        return json.dumps(self.get_dict(), sort_keys=True, indent=4)
 
 def __parse_args():
     """Parse command line arguments and return an argparse object."""
@@ -315,68 +97,6 @@ def __parse_args():
     argcomplete.autocomplete(parser)
     return parser.parse_args()
 
-def parse_doc(mkd_file_path, tags=""):
-    """Parse code blocks from markdown file and return DocCommander object.
-
-    Args:
-        mkd_file_path (str): Path to markdown file.
-        code_tag (str): Code highlight specifier in markdown. We can use this
-            to filter only certain code blocks. If it's set to empty string or
-            None, all code blocks will be used. Defaults to "bash".
-
-    Returns:
-        DocCommander object.
-    """
-    mkd_data = ""
-    with open(mkd_file_path, 'r') as f:
-        mkd_data = f.read()
-    html_data = markdown.markdown(
-        mkd_data,
-        extensions=['toc', 'tables', 'footnotes', 'fenced_code']
-        )
-    soup = BeautifulSoup(html_data, 'html.parser')
-    # collect all elements with selected tags as classes
-    classes = re.compile(
-        "(^|_)({})(_|$)".format('|'.join(tags.split(','))) if tags else '^(?!env).*'
-        )
-    code_block_elements = soup.findAll('code', attrs={"class":classes,})
-    commander = DocCommander()
-    for element in code_block_elements:
-        class_name = element.get_attribute_list('class')[0]
-        interpreter = None
-        if class_name:
-            interpreter = class_name.split("_")[0]
-        commander.add(
-            element.getText(),
-            interpreter
-        )
-    classes = re.compile("^env(iron(ment)?)?$")
-    env_elements = soup.findAll('code', attrs={"class":classes,})
-    env_string = "\n".join([ x.string for x in env_elements ])
-    commander.set_env(env_string)
-    return commander
-
-def parse_output(output_file_path):
-    """Load json output, create and return DocCommander object.
-
-    Args:
-        output_file_path (str): Path to saved output file.
-
-    Returns:
-        DocCommander object.
-    """
-    output_data = None
-    with open(output_file_path, 'r') as f:
-        output_data = f.read()
-    data = json.loads(output_data)
-    commander = DocCommander()
-    for d in data:
-        doc_code = DocCode(d['code'], d['interpreter'])
-        doc_code.user_command = d['user_code']
-        commander.doc_codes.append(doc_code)
-    return commander
-
-
 def main():
     args = __parse_args()
     logging.basicConfig(
@@ -396,18 +116,28 @@ def main():
     output = ""
 
     if args.cmd == 'run':
-        commander = parse_doc(args.mkd_file_path, tags=args.tags)
+        try:
+            commander = parse_doc(args.mkd_file_path, tags=args.tags)
+        except BadEnv as e:
+            print("{}{}{}".format(clr.red, e, clr.end))
+            sys.exit(1)
         try:
             output = commander.run(
                 step=args.step, yes=args.yes, pause=args.pause)
         except KeyboardInterrupt:
             commander.die_with_grace()
+        except BadEnv as e:
+            print("{}{}{}".format(clr.red, e, clr.end))
+            sys.exit(1)
     if args.cmd == 'rerun':
         commander = parse_output(args.saved_output_path)
         try:
             output = commander.run(step=args.step, yes=True)
         except KeyboardInterrupt:
             commander.die_with_grace()
+        except BadEnv as e:
+            print("{}{}{}".format(clr.red, e, clr.end))
+            sys.exit(1)
     if args.cmd in ('rerun', 'run') and args.output:
         with open(args.output, 'w+') as f:
             f.write(output)
