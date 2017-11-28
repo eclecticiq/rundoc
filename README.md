@@ -70,7 +70,7 @@ This is useful when your N-th code block exits with error and you want to contin
 
 Output can be saved as a json list of executed code blocks containing:
 
-- `commands`: list of code blocks that contains the following
+- `code_blocks`: list of code blocks that contains the following
     - `code`: original code
     - `user_code`: code that user actually executed with prompt
     - `interpreter`: interpreter used for this code block

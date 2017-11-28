@@ -39,6 +39,10 @@ class OrderedEnv(OrderedDict):
     that giving empty string as value means you don't with to change those
     variables).
     """
+    def __init__(self, title=None):
+        super().__init__()
+        self.title = title
+
     def __str__(self):
         return "\n".join([ var+"="+self[var] for var in self ])
 
@@ -66,17 +70,18 @@ class OrderedEnv(OrderedDict):
     def prompt(self):
         if not len(self):
             return
-        msg = "\n{}Confirm/supply/modify environment variables."
-        msg += "\nPress alt+Return to finish.{}"
+        print(self.title)
+        msg = "{}\tConfirm/supply/modify environment variables."
+        msg += "\n\tPress Return to finish.{}"
         msg = msg.format(clr.bold, clr.end)
         print(msg)
         env_string = str(self)
-        env_string = prompt( ' ', default = env_string )
+        env_string = prompt( '» ', default = env_string )
         self.clear()
         self.import_string(env_string, collect_existing_env=False)
 
     def prompt_missing(self):
-        missing = self.__class__()
+        missing = self.__class__(self.title)
         for var in self:
             if not self[var]:
                 missing.append(var, '')
@@ -93,7 +98,12 @@ class DocCommander(object):
     Manages environment and DocCode objects and executes them in succession.
     """
     def __init__(self):
-        self.env = OrderedEnv()
+        self.env = OrderedEnv(
+            "\n{}==== env variables{}".format(clr.bold, clr.end)
+            )
+        self.secrets = OrderedEnv(
+            "\n{}==== secrets{}".format(clr.bold, clr.end)
+            )
         self.doc_codes = []
         self.running = False
         self.failed = False
@@ -103,13 +113,13 @@ class DocCommander(object):
     def get_dict(self):
         return {
             'env': self.env,
-            'commands': [ x.get_dict() for x in self.doc_codes ]
+            'code_blocks': [ x.get_dict() for x in self.doc_codes ]
         }
 
-    def add(self, code, interpreter='bash'):
+    def add(self, code, interpreter='bash', darkbg=True):
         if not interpreter:
             interpreter = 'bash'
-        self.doc_codes.append(DocCode(code, interpreter))
+        self.doc_codes.append(DocCode(code, interpreter, darkbg))
 
     def die_with_grace(self):
         if self.running:
@@ -133,15 +143,21 @@ class DocCommander(object):
                 Makes sense only when 'yes' is set to True. Defaults to 0.
 
         Returns:
-            JSON representation of commands and outputs.
+            JSON representation of code blocks and outputs.
         """
         assert self.running == False
         assert self.failed == False
         if yes:
             self.env.prompt_missing()
+            self.secrets.prompt_missing()
         else:
             self.env.prompt()
+            self.secrets.prompt()
+        msg = "\n{}Running code blocks from supplied documentation."
+        msg += "\nModify and/or confirm displayed code by pressing Return.{}"
+        print(msg.format(clr.bold, clr.end))
         self.env.load()
+        self.secrets.load()
         self.running = True
         for doc_code in self.doc_codes[step-1:]:
             self.current_step = step
@@ -177,7 +193,7 @@ class DocCommander(object):
             step += 1
         return json.dumps(self.get_dict(), sort_keys=True, indent=4)
 
-def parse_doc(mkd_file_path, tags=""):
+def parse_doc(mkd_file_path, tags="", darkbg=True):
     """Parse code blocks from markdown file and return DocCommander object.
 
     Args:
@@ -199,7 +215,7 @@ def parse_doc(mkd_file_path, tags=""):
     soup = BeautifulSoup(html_data, 'html.parser')
     # collect all elements with selected tags as classes
     classes = re.compile(
-        "(^|_)({})(_|$)".format('|'.join(tags.split(','))) if tags else '^(?!env).*'
+        "(^|_)({})(_|$)".format('|'.join(tags.split(','))) if tags else '^(?!(env|secret)).*'
         )
     code_block_elements = soup.findAll('code', attrs={"class":classes,})
     commander = DocCommander()
@@ -210,12 +226,19 @@ def parse_doc(mkd_file_path, tags=""):
             interpreter = class_name.split("_")[0]
         commander.add(
             element.getText(),
-            interpreter
+            interpreter,
+            darkbg
         )
+    # get env blocks
     classes = re.compile("^env(iron(ment)?)?$")
     env_elements = soup.findAll('code', attrs={"class":classes,})
     env_string = "\n".join([ x.string for x in env_elements ])
     commander.env.import_string(env_string)
+    # get secrets blocks
+    classes = re.compile("^secrets?$")
+    secrets_elements = soup.findAll('code', attrs={"class":classes,})
+    secrets_string = "\n".join([ x.string for x in secrets_elements ])
+    commander.secrets.import_string(secrets_string)
     return commander
 
 def parse_output(output_file_path):

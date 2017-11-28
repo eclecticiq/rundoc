@@ -6,7 +6,6 @@ from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
-from pygments.styles.vim import VimStyle as HighlightStyle
 import logging
 import subprocess
 import sys
@@ -22,7 +21,13 @@ class DocCode(object):
         process (subprocess.Popen): Process object running the interpreter.
         output (dict): Dictinary containing 'stdout' and 'retcode'.
     """
-    def __init__(self, code, interpreter):
+    def __init__(self, code, interpreter, darkbg=True):
+        if darkbg:
+            from pygments.styles.monokai import MonokaiStyle as HighlightStyle
+            self.HighlightStyle = HighlightStyle
+        else:
+            from pygments.styles.manni import ManniStyle as HighlightStyle
+            self.HighlightStyle = HighlightStyle
         self.interpreter = interpreter
         self.code = code
         self.user_code = ''
@@ -45,7 +50,7 @@ class DocCode(object):
             return highlight(
                 code,
                 lexer_class(),
-                Terminal256Formatter(style=HighlightStyle)
+                Terminal256Formatter(style=self.HighlightStyle)
                 )
         return code
 
@@ -57,12 +62,12 @@ class DocCode(object):
             'output': self.output,
         }
 
-    def prompt_user(self, prompt_text=' '):
+    def prompt_user(self, prompt_text='» '):
         self.user_code = prompt(
             prompt_text,
             default = self.code,
             lexer = self.get_lexer_class(),
-            style = style_from_pygments(HighlightStyle)
+            style = style_from_pygments(self.HighlightStyle)
             )
 
     def print_stdout(self):

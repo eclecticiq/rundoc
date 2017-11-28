@@ -61,6 +61,10 @@ def __parse_args():
             interaction.'''
         )
     parser_run.add_argument(
+        "--light", action="store_true",
+        help="Light terminal background."
+        )
+    parser_run.add_argument(
         "-y", "--yes", action="store_true",
         help="Confirm all steps with no user interaction."
         )
@@ -117,7 +121,8 @@ def main():
 
     if args.cmd == 'run':
         try:
-            commander = parse_doc(args.mkd_file_path, tags=args.tags)
+            darkbg = not args.light
+            commander = parse_doc(args.mkd_file_path, args.tags, darkbg=darkbg)
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
