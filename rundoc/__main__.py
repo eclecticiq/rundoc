@@ -1,7 +1,7 @@
 """
 Main module for rundoc command line utility.
 """
-from rundoc import BadEnv
+from rundoc import BadEnv, CodeFailed
 from rundoc.doc_commander import parse_doc, parse_output 
 import argcomplete
 import argparse
@@ -39,10 +39,10 @@ def __parse_args():
     parser_run.add_argument(
         "-t", "--tags", action="store",
         help='''Coma-separated list of tags (e.g. -t
-            bash,bash_proj-2,python3_proj2). Part of tag until first underscore
-            will be used as selected interpreter for that code. If no tags are
-            provided, all code blocks will be used. Untagged code blocks will
-            use bash as default interpreter.'''
+                bash,bash_proj-2,python3_proj2). Part of tag until first
+                underscore will be used as selected interpreter for that code.
+                If no tags are provided, all code blocks will be used. Untagged
+                code blocks will use bash as default interpreter.'''
         )
     parser_run.add_argument(
         "-p", "--pause", type=int, action="store",
@@ -56,9 +56,9 @@ def __parse_args():
     parser_run.add_argument(
         "-o", "--output", type=str, action="store",
         help='''Output file. All codes, modifications and output of execution
-            will be saved here. This file can be later used as an argument to
-            'rerun' command which will execute all steps without any user
-            interaction.'''
+                will be saved here. This file can be later used as an argument
+                to 'rerun' command which will execute all steps without any
+                user interaction.'''
         )
     parser_run.add_argument(
         "--light", action="store_true",
@@ -68,10 +68,16 @@ def __parse_args():
         "-y", "--yes", action="store_true",
         help="Confirm all steps with no user interaction."
         )
+    parser_run.add_argument(
+        "-r", "--retry", type=int, action="store",
+        help='''Number of retries for failed code blocks when using -y option.
+                Defaults to 0.'''
+        )
     parser_run.set_defaults(
         tags="",
         pause=0,
         step=1,
+        retry=0,
         output=None,
         )
 
@@ -90,8 +96,8 @@ def __parse_args():
     parser_rerun.add_argument(
         "-o", "--output", type=str, action="store",
         help='''Output file. All codes, modifications and output of execution
-            will be saved here. This file can be later used as an input
-            argument to 'rerun' command.'''
+                will be saved here. This file can be later used as an input
+                argument to 'rerun' command.'''
         )
     parser_rerun.set_defaults(
         step=1,
@@ -126,18 +132,26 @@ def main():
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
+        step = args.step
         try:
             output = commander.run(
-                step=args.step, yes=args.yes, pause=args.pause)
+                start_step=step,
+                yes=args.yes,
+                pause=args.pause,
+                retry=args.retry
+            )
         except KeyboardInterrupt:
             commander.die_with_grace()
+            sys.exit(1)
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
+            sys.exit(1)
+        except CodeFailed as e:
             sys.exit(1)
     if args.cmd == 'rerun':
         commander = parse_output(args.saved_output_path)
         try:
-            output = commander.run(step=args.step, yes=True)
+            output = commander.run(start_step=args.step, yes=True)
         except KeyboardInterrupt:
             commander.die_with_grace()
         except BadEnv as e:

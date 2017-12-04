@@ -2,7 +2,7 @@
 Tool that let's you run code blocks from a markdown file in controlled manner.
 """
 
-__version__ = "0.1.11"
+__version__ = "0.1.12"
 __licence__ = "BSD"
 __year__ = "2017"
 __author__ = "EclecticIQ"
@@ -15,5 +15,9 @@ class RundocException(Exception):
 
 class BadEnv(RundocException):
     """Attempt to load invalid environment name/value"""
+    pass
+
+class CodeFailed(RundocException):
+    """Raise this when code block returns non-zero exit status."""
     pass
 

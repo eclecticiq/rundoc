@@ -6,7 +6,6 @@ from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
-import logging
 import subprocess
 import sys
 
@@ -16,10 +15,12 @@ class DocCode(object):
     Attributes:
         interpreter (str): Interpreter used to run the code.
         code (str): Base code loaded during initialization.
-        user_code (str): User modified version of the code (will be used
-            instead if is not None or empty string).
         process (subprocess.Popen): Process object running the interpreter.
-        output (dict): Dictinary containing 'stdout' and 'retcode'.
+        runs (list): List of dictinaries, each containing the following:
+            'user_code': User modified version of the code (will be used
+                instead of main code unless it's set to None or empty string).
+            'stdout': Full output of executed code block.
+            'retcode': exit code of the code block executed
     """
     def __init__(self, code, interpreter, darkbg=True):
         if darkbg:
@@ -30,9 +31,20 @@ class DocCode(object):
             self.HighlightStyle = HighlightStyle
         self.interpreter = interpreter
         self.code = code
-        self.user_code = ''
         self.process = None
-        self.output = { 'stdout':'', 'retcode':None }
+        self.runs = []  # elements inside are like:
+                        #   {
+                        #       'user_code':'',
+                        #       'stdout':'',
+                        #       'retcode':None
+                        #   }
+
+    @property
+    def last_run(self):
+        if len(self.runs):
+            return self.runs[-1]
+        else:
+            return None
 
     def get_lexer_class(self):
         lexer_class = None
@@ -43,27 +55,26 @@ class DocCode(object):
             # no lexer, return plain text
             return None
 
-    def __str__(self):
-        lexer_class = self.get_lexer_class()
-        code = self.user_code.strip() or self.code
-        if lexer_class:
-            return highlight(
-                code,
-                lexer_class(),
-                Terminal256Formatter(style=self.HighlightStyle)
-                )
-        return code
+    #def __str__(self):
+    #    lexer_class = self.get_lexer_class()
+    #    code = self.user_code.strip() or self.code
+    #    if lexer_class:
+    #        return highlight(
+    #            code,
+    #            lexer_class(),
+    #            Terminal256Formatter(style=self.HighlightStyle)
+    #            )
+    #    return code
 
     def get_dict(self):
         return {
             'interpreter': self.interpreter,
             'code': self.code,
-            'user_code': self.user_code,
-            'output': self.output,
+            'runs': self.runs,
         }
 
     def prompt_user(self, prompt_text='» '):
-        self.user_code = prompt(
+        self.last_run['user_code'] = prompt(
             prompt_text,
             default = self.code,
             lexer = self.get_lexer_class(),
@@ -73,16 +84,26 @@ class DocCode(object):
     def print_stdout(self):
         assert self.process
         line = self.process.stdout.readline().decode('utf-8')
-        self.output['stdout'] += line
+        self.last_run['stdout'] += line
         print(line, end='')
 
     def is_running(self):
         return self.process and self.process.poll() is None
 
-    def run(self):
+    def run(self, prompt=True):
         if not self.process:
-            code = self.user_code.strip() or self.code
-            logging.debug('Running code {}'.format(code))
+            self.runs.append(
+                {
+                    'user_code':'',
+                    'stdout':'',
+                    'retcode':None
+                }
+            )
+            if prompt:
+                self.prompt_user()
+            else:
+                self.last_run['user_code'] = self.code
+            code = self.last_run['user_code'].strip()
             self.process = subprocess.Popen(
                 [self.interpreter, '-c', code],
                 stdout=subprocess.PIPE,
@@ -91,7 +112,8 @@ class DocCode(object):
                 )
         while self.is_running():
             self.print_stdout()
-        self.output['retcode'] = self.process.poll()
+        self.last_run['retcode'] = self.process.poll()
+        self.process = None
 
     def kill(self):
         if self.process:
