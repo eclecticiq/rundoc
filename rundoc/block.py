@@ -9,7 +9,7 @@ from pygments.lexers import get_lexer_by_name
 import subprocess
 import sys
 
-class DocCode(object):
+class DocBlock(object):
     """Single multi-line code block executed as a script.
 
     Attributes:
@@ -55,16 +55,20 @@ class DocCode(object):
             # no lexer, return plain text
             return None
 
-    #def __str__(self):
-    #    lexer_class = self.get_lexer_class()
-    #    code = self.user_code.strip() or self.code
-    #    if lexer_class:
-    #        return highlight(
-    #            code,
-    #            lexer_class(),
-    #            Terminal256Formatter(style=self.HighlightStyle)
-    #            )
-    #    return code
+    def __str__(self):
+        lexer_class = self.get_lexer_class()
+        code = ''
+        if self.last_run:
+            code = self.last_run['user_code'].strip()
+        else:
+            code = self.code
+        if lexer_class:
+            return highlight(
+                code,
+                lexer_class(),
+                Terminal256Formatter(style=self.HighlightStyle)
+                )
+        return code
 
     def get_dict(self):
         return {

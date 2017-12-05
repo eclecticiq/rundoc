@@ -2,7 +2,7 @@
 Main module for rundoc command line utility.
 """
 from rundoc import BadEnv, CodeFailed
-from rundoc.doc_commander import parse_doc, parse_output 
+from rundoc.commander import parse_doc, parse_output 
 import argcomplete
 import argparse
 import logging

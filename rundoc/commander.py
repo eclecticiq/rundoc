@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from collections import OrderedDict
 from prompt_toolkit import prompt
 from rundoc import BadEnv, CodeFailed
-from rundoc.doc_code import DocCode
+from rundoc.block import DocBlock
 from time import sleep
 import json
 import markdown
@@ -95,7 +95,7 @@ class OrderedEnv(OrderedDict):
 
 class DocCommander(object):
     """
-    Manages environment and DocCode objects and executes them in succession.
+    Manages environment and DocBlock objects and executes them in succession.
     """
     def __init__(self):
         self.env = OrderedEnv(
@@ -104,15 +104,15 @@ class DocCommander(object):
         self.secrets = OrderedEnv(
             "\n{}==== secrets{}".format(clr.bold, clr.end)
             )
-        self.doc_codes = []
+        self.doc_blocks = []
         self.running = False
         self.step = None
 
     @property
-    def doc_code(self):
-        """Current doc_code."""
+    def doc_block(self):
+        """Current doc_block."""
         if self.step:
-            return self.doc_codes[self.step-1]
+            return self.doc_blocks[self.step-1]
             # step-1 because steps start at 0 but are refered to as if they
             # start with 1
         else:
@@ -121,17 +121,17 @@ class DocCommander(object):
     def get_dict(self):
         return {
             'env': self.env,
-            'code_blocks': [ x.get_dict() for x in self.doc_codes ]
+            'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
         }
 
     def add(self, code, interpreter='bash', darkbg=True):
         if not interpreter:
             interpreter = 'bash'
-        self.doc_codes.append(DocCode(code, interpreter, darkbg))
+        self.doc_blocks.append(DocBlock(code, interpreter, darkbg))
 
     def die_with_grace(self):
         if self.running:
-            self.doc_code.kill()
+            self.doc_block.kill()
             print("\n==== {}Quit at step {} with keyboard interrupt.{}\n".format(
                 clr.red,
                 self.step,
@@ -140,7 +140,7 @@ class DocCommander(object):
             )
 
     def run(self, start_step=1, yes=False, pause=0, retry=0):
-        """Run all the doc_codes one by one starting from `start_step`.
+        """Run all the doc_blocks one by one starting from `start_step`.
 
         Args:
             start_step (int): Number of step to start with. Defaults to 1.
@@ -167,15 +167,15 @@ class DocCommander(object):
         self.secrets.load()
         self.running = True
         self.step = start_step
-        while self.step in range(start_step, len(self.doc_codes)+1):
+        while self.step in range(start_step, len(self.doc_blocks)+1):
             prompt_text = "\n{}=== Step {} [{}]{}".format(
-                clr.bold, self.step, self.doc_code.interpreter, clr.end)
+                clr.bold, self.step, self.doc_block.interpreter, clr.end)
             print(prompt_text)
             if yes:
-                print(self.doc_code)
+                print(self.doc_block)
                 sleep(pause)
-            self.doc_code.run(prompt = not yes) # run in blocking manner
-            if self.doc_code.last_run['retcode'] == 0:
+            self.doc_block.run(prompt = not yes) # run in blocking manner
+            if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
                     clr.green, self.step, clr.end))
                 self.step += 1
@@ -183,18 +183,18 @@ class DocCommander(object):
             # in case it failed:
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
-                clr.red, self.step, self.doc_code.last_run['retcode'], clr.end))
+                clr.red, self.step, self.doc_block.last_run['retcode'], clr.end))
             if not yes:
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(clr.red, clr.bold, self.step, clr.end))
                 input()
                 continue
-            if len(self.doc_code.runs) > retry:
+            if len(self.doc_block.runs) > retry:
                 raise CodeFailed("Failed at step {} with exit code '{}'".format(
-                        self.step, self.doc_code.last_run['retcode']))
+                        self.step, self.doc_block.last_run['retcode']))
             print("{}Retry number {}.".format(
-                clr.bold, len(self.doc_code.runs), clr.end), end="")
+                clr.bold, len(self.doc_block.runs), clr.end), end="")
         self.step = 0
         return json.dumps(self.get_dict(), sort_keys=True, indent=4)
 
@@ -261,8 +261,8 @@ def parse_output(output_file_path):
     data = json.loads(output_data)
     commander = DocCommander()
     for d in data:
-        doc_code = DocCode(d['code'], d['interpreter'])
-        doc_code.user_command = d['user_code']
-        commander.doc_codes.append(doc_code)
+        doc_block = DocBlock(d['code'], d['interpreter'])
+        doc_block.user_command = d['user_code']
+        commander.doc_blocks.append(doc_block)
     return commander
 
