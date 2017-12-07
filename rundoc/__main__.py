@@ -69,15 +69,21 @@ def __parse_args():
         help="Confirm all steps with no user interaction."
         )
     parser_run.add_argument(
-        "-r", "--retry", type=int, action="store",
+        "-r", "--retry", type=float, action="store",
         help='''Number of retries for failed code blocks when using -y option.
                 Defaults to 0.'''
+        )
+    parser_run.add_argument(
+        "-P", "--retry-pause", type=float, action="store",
+        help='''Pause N seconds before retrying. Actual pause will be max value
+                of --pause or --retry-pause. Defaults to 1.'''
         )
     parser_run.set_defaults(
         tags="",
         pause=0,
         step=1,
         retry=0,
+        retry_pause=1,
         output=None,
         )
 
@@ -132,13 +138,13 @@ def main():
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
-        step = args.step
         try:
             output = commander.run(
-                start_step=step,
+                step=args.step,
                 yes=args.yes,
                 pause=args.pause,
-                retry=args.retry
+                retry=args.retry,
+                retry_pause=args.retry_pause,
             )
         except KeyboardInterrupt:
             commander.die_with_grace()

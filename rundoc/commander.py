@@ -139,19 +139,20 @@ class DocCommander(object):
                 )
             )
 
-    def run(self, start_step=1, yes=False, pause=0, retry=0):
-        """Run all the doc_blocks one by one starting from `start_step`.
+    def run(self, step=1, yes=False, pause=0, retry=0, retry_pause=1):
+        """Run all the doc_blocks one by one starting from `step`.
 
         Args:
-            start_step (int): Number of step to start with. Defaults to 1.
-                Steps start at 1.
+            step (int): Number of step to start with. Steps start at 1.
             yes (bool): Auto-confirm all steps without user interaction.
-                Defaults to False.
-            pause (int): Add a delay in seconds before the start of each step.
-                Makes sense only when 'yes' is set to True. Defaults to 0.
+            pause (float): Add a delay in seconds before the start of each
+                step. Makes sense only when 'yes' is set to True.
+            retry (int): Number of times a step will retry to execute before
+                giving up and failing.
+            retry_pause (float): Additional pause before retrying same step.
 
         Returns:
-            JSON representation of code blocks and outputs.
+            JSON representation of code blocks, outputs and environment.
         """
         assert self.running == False
         if yes:
@@ -166,8 +167,8 @@ class DocCommander(object):
         self.env.load()
         self.secrets.load()
         self.running = True
-        self.step = start_step
-        while self.step in range(start_step, len(self.doc_blocks)+1):
+        self.step = step
+        while self.step in range(step, len(self.doc_blocks)+1):
             prompt_text = "\n{}=== Step {} [{}]{}".format(
                 clr.bold, self.step, self.doc_block.interpreter, clr.end)
             print(prompt_text)
@@ -195,6 +196,7 @@ class DocCommander(object):
                         self.step, self.doc_block.last_run['retcode']))
             print("{}Retry number {}.".format(
                 clr.bold, len(self.doc_block.runs), clr.end), end="")
+            sleep(retry_pause)
         self.step = 0
         return json.dumps(self.get_dict(), sort_keys=True, indent=4)
 
