@@ -45,6 +45,13 @@ def __parse_args():
                 code blocks will use bash as default interpreter.'''
         )
     parser_run.add_argument(
+        "-i", "--inherit-env", action="store_true",
+        help='''Override default env variable values with values from existing
+                environment. Useful when you export variables before running
+                rundoc and expect them to override default values that are set
+                in the docs.'''
+        )
+    parser_run.add_argument(
         "-p", "--pause", type=int, action="store",
         help='''Used in combination with -y. Pause N seconds before each code
                 block. Defaults to 0.'''
@@ -80,6 +87,7 @@ def __parse_args():
         )
     parser_run.set_defaults(
         tags="",
+        inherit_env=False,
         pause=0,
         step=1,
         retry=0,
@@ -142,6 +150,7 @@ def main():
             output = commander.run(
                 step=args.step,
                 yes=args.yes,
+                inherit_env=args.inherit_env,
                 pause=args.pause,
                 retry=args.retry,
                 retry_pause=args.retry_pause,

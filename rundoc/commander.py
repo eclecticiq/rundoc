@@ -89,8 +89,21 @@ class OrderedEnv(OrderedDict):
         self.extend(missing, collect_existing_env=False)
 
     def load(self):
+        """
+        Set environment according to defined variables.
+        """
         for var in self:
             os.environ[var] = self[var]
+
+    def inherit_existing_env(self):
+        """
+        Override variable values with values from existing environment. Useful
+        when you want "outside" environment to have authority over locally
+        defined values.
+        """
+        for var in self:
+            val = os.environ.get(var, '') or self.get(var)
+            self[var] = val
 
 
 class DocCommander(object):
@@ -139,12 +152,15 @@ class DocCommander(object):
                 )
             )
 
-    def run(self, step=1, yes=False, pause=0, retry=0, retry_pause=1):
+    def run(self,
+        step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
             step (int): Number of step to start with. Steps start at 1.
             yes (bool): Auto-confirm all steps without user interaction.
+            inherit_env (bool): Override env defaults in docs with exported
+                values from outside env (for those that exist).
             pause (float): Add a delay in seconds before the start of each
                 step. Makes sense only when 'yes' is set to True.
             retry (int): Number of times a step will retry to execute before
@@ -155,6 +171,8 @@ class DocCommander(object):
             JSON representation of code blocks, outputs and environment.
         """
         assert self.running == False
+        if inherit_env:
+            self.env.inherit_existing_env()
         if yes:
             self.env.prompt_missing()
             self.secrets.prompt_missing()
