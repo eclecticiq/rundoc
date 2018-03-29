@@ -53,7 +53,7 @@ test_tags() {
     if $generate; then
         local file_name=regression_test_good_$tags.json
     else
-        echo -n "Test tags: $tags"
+        echo -n "$tests. Test tags: $tags"
         local file_name=out_test_good_$tags.json
     fi
     if [ -z $tags ]; then
@@ -91,8 +91,8 @@ test_tags block-2_block-1
 test_tags python_bash
 test_tags bash_python
 
-
 # done
-tests=0
-failed_tests=0
+echo "Tests run: $tests"
+echo "Failed tests: $failed_tests"
+
 
