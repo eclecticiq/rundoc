@@ -11,7 +11,6 @@ import json
 import markdown
 import os
 import re
-import sys
 
 class clr:
     ''' 
@@ -120,6 +119,7 @@ class DocCommander(object):
         self.doc_blocks = []
         self.running = False
         self.step = None
+        self.output_file = None
 
     @property
     def doc_block(self):
@@ -151,9 +151,19 @@ class DocCommander(object):
                 clr.end,
                 )
             )
+        if self.output_file:
+            with open(self.output_file, 'w+') as f:
+                f.write(json.dumps(self.get_dict(), sort_keys=True, indent=4))
+
+    def write_output(self):
+        if self.output_file:
+            with open(self.output_file, 'w+') as f:
+                f.write(json.dumps(self.get_dict(), sort_keys=True, indent=4))
+            print("Output written to: %s".format(self.output_file))
 
     def run(self,
-        step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1):
+        step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
+        output_file=None):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
@@ -166,11 +176,11 @@ class DocCommander(object):
             retry (int): Number of times a step will retry to execute before
                 giving up and failing.
             retry_pause (float): Additional pause before retrying same step.
-
-        Returns:
-            JSON representation of code blocks, outputs and environment.
+            output_file (str): Output file path.
         """
         assert self.running == False
+        if output_file is not None:
+            self.output_file = output_file
         if inherit_env:
             self.env.inherit_existing_env()
         if yes:
@@ -210,13 +220,15 @@ class DocCommander(object):
                 input()
                 continue
             if len(self.doc_block.runs) > retry:
+                self.write_output()
                 raise CodeFailed("Failed at step {} with exit code '{}'".format(
                         self.step, self.doc_block.last_run['retcode']))
             print("{}Retry number {}.".format(
                 clr.bold, len(self.doc_block.runs), clr.end), end="")
             sleep(retry_pause)
         self.step = 0
-        return json.dumps(self.get_dict(), sort_keys=True, indent=4)
+        self.write_output()
+
 
 def parse_doc(mkd_file_path, tags="", darkbg=True):
     """Parse code blocks from markdown file and return DocCommander object.

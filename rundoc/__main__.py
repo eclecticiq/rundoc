@@ -137,7 +137,6 @@ def main():
             rundoc.__author_email__,
             ))
         sys.exit(0)
-    output = ""
 
     if args.cmd == 'run':
         try:
@@ -147,14 +146,15 @@ def main():
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
         try:
-            output = commander.run(
+            commander.run(
                 step=args.step,
                 yes=args.yes,
                 inherit_env=args.inherit_env,
                 pause=args.pause,
                 retry=args.retry,
                 retry_pause=args.retry_pause,
-            )
+                output_file=args.output,
+                )
         except KeyboardInterrupt:
             commander.die_with_grace()
             sys.exit(1)
@@ -172,9 +172,6 @@ def main():
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
-    if args.cmd in ('rerun', 'run') and args.output:
-        with open(args.output, 'w+') as f:
-            f.write(output)
 
 if __name__ == '__main__':
     main()
