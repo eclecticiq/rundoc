@@ -8,6 +8,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
 import subprocess
 import sys
+import time
 
 class DocBlock(object):
     """Single multi-line code block executed as a script.
@@ -100,7 +101,9 @@ class DocBlock(object):
                 {
                     'user_code':'',
                     'stdout':'',
-                    'retcode':None
+                    'retcode':None,
+                    'time_start':None,
+                    'time_stop':None,
                 }
             )
             if prompt:
@@ -108,6 +111,7 @@ class DocBlock(object):
             else:
                 self.last_run['user_code'] = self.code
             code = self.last_run['user_code'].strip()
+            self.last_run['start_time'] = time.time()
             self.process = subprocess.Popen(
                 [self.interpreter, '-c', code],
                 stdout=subprocess.PIPE,
@@ -116,6 +120,7 @@ class DocBlock(object):
                 )
         while self.is_running():
             self.print_stdout()
+        self.last_run['stop_time'] = time.time()
         self.last_run['retcode'] = self.process.poll()
         self.process = None
 
