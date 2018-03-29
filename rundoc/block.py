@@ -111,7 +111,7 @@ class DocBlock(object):
             else:
                 self.last_run['user_code'] = self.code
             code = self.last_run['user_code'].strip()
-            self.last_run['start_time'] = time.time()
+            self.last_run['time_start'] = time.time()
             self.process = subprocess.Popen(
                 [self.interpreter, '-c', code],
                 stdout=subprocess.PIPE,
@@ -120,7 +120,7 @@ class DocBlock(object):
                 )
         while self.is_running():
             self.print_stdout()
-        self.last_run['stop_time'] = time.time()
+        self.last_run['time_stop'] = time.time()
         self.last_run['retcode'] = self.process.poll()
         self.process = None
 

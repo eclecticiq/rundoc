@@ -80,7 +80,7 @@ This is useful when your N-th code block fails and rundoc exits and you want to 
 
 ### Save output
 
-Output can be saved as a json list of executed code blocks containing:
+Output can be saved as a json file containing these fields:
 
 - `env`: dictionary of set environment variables for the session
 - `code_blocks`: list of code blocks that contains the following
@@ -121,7 +121,7 @@ In this syntax, multiple tags are applied to same code block and are separated w
 
 ### Environment variables
 
-You can define required environment variables anywhere in the documentaion as a spectial code block tagged as `env`:
+You can define required environment variables anywhere in the documentaion as a special code block tagged as `env`:
 
 ~~~markdown
  ```env

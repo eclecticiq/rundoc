@@ -159,7 +159,7 @@ class DocCommander(object):
         if self.output_file:
             with open(self.output_file, 'w+') as f:
                 f.write(json.dumps(self.get_dict(), sort_keys=True, indent=4))
-            print("Output written to: %s".format(self.output_file))
+            print("Output written to: {}".format(self.output_file))
 
     def run(self,
         step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
