@@ -1,5 +1,6 @@
 rundoc
 ==================================================
+[![Build Status](https://travis-ci.org/EclecticIQ/rundoc.png)](https://travis-ci.org/EclecticIQ/rundoc)
 
 Run code blocks from documentation written in markdown.
 
