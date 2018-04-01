@@ -2,6 +2,7 @@ rundoc
 ==================================================
 [![Build Status](https://travis-ci.org/EclecticIQ/rundoc.png)](https://travis-ci.org/EclecticIQ/rundoc)
 [![Requirements Status](https://requires.io/github/EclecticIQ/rundoc/requirements.svg?branch=dev)](https://requires.io/github/EclecticIQ/rundoc/requirements/?branch=dev)
+[![Code Health](https://landscape.io/github/EclecticIQ/rundoc/master/landscape.svg?style=flat)](https://landscape.io/github/EclecticIQ/rundoc/master)
 
 Run code blocks from documentation written in markdown.
 
