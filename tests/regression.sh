@@ -61,7 +61,7 @@ test_tags() {
             -o $file_name > /dev/null
     else
         rundoc run -y test_good.md \
-            -o $file_name -t $(echo $tags | sed 's/_/,/g') > /dev/null
+            -o $file_name -t $tags > /dev/null
     fi
     verify_zero_exit
     strip_timestamps $file_name
@@ -86,10 +86,10 @@ test_tags bash
 test_tags python3
 test_tags block-1
 test_tags block-2
-test_tags block-1_block-2
-test_tags block-2_block-1
-test_tags python_bash
-test_tags bash_python
+test_tags block-1#block-2
+test_tags block-2#block-1
+test_tags python#bash
+test_tags bash#python
 
 # done
 echo "Tests run: $tests"

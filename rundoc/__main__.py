@@ -38,11 +38,11 @@ def __parse_args():
         )
     parser_run.add_argument(
         "-t", "--tags", action="store",
-        help='''Coma-separated list of tags (e.g. -t
-                bash,bash_proj-2,python3_proj2). Part of tag until first
-                underscore will be used as selected interpreter for that code.
-                If no tags are provided, all code blocks will be used. Untagged
-                code blocks will use bash as default interpreter.'''
+        help='''Hash (#) separated list of tags (e.g. -t bash#proj-2#test_3).
+                Part of tag until first hash will be used as selected
+                interpreter for that code. If no tags are provided, all code
+                blocks will be used. Untagged code blocks will use bash as
+                default interpreter.'''
         )
     parser_run.add_argument(
         "-i", "--inherit-env", action="store_true",
@@ -127,7 +127,7 @@ def main():
         format = '%(asctime)s.%(msecs)03d, %(levelname)s: %(message)s',
         datefmt = '%Y-%m-%d %H:%M:%S',
         filename = None,
-        level = logging.DEBUG if args.debug else logging.CRITICAL,
+        level = logging.DEBUG if args.debug else logging.WARNING,
         )
     if args.version:
         print("rundoc {} - Copyright {} {} <{}>".format(

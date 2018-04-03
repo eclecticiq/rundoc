@@ -4,13 +4,15 @@ Classes and tools for parsing markdown docs and manipulating their execution.
 from bs4 import BeautifulSoup
 from collections import OrderedDict
 from prompt_toolkit import prompt
-from rundoc import BadEnv, CodeFailed
+from rundoc import RundocException, BadEnv, CodeFailed, BadInterpreter
 from rundoc.block import DocBlock
 from time import sleep
 import json
+import logging
 import markdown
 import os
 import re
+import sys
 
 class clr:
     ''' 
@@ -140,7 +142,13 @@ class DocCommander(object):
     def add(self, code, interpreter='bash', darkbg=True):
         if not interpreter:
             interpreter = 'bash'
-        self.doc_blocks.append(DocBlock(code, interpreter, darkbg))
+        try:
+            self.doc_blocks.append(DocBlock(code, interpreter, darkbg))
+        except RundocException as re:
+            logging.error(str(re))
+            if self.running:
+                self.doc_block.kill()
+            sys.exit(1)
 
     def die_with_grace(self):
         if self.running:
@@ -242,6 +250,7 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
     Returns:
         DocCommander object.
     """
+    tag_separator = "#"
     mkd_data = ""
     with open(mkd_file_path, 'r') as f:
         mkd_data = f.read()
@@ -252,7 +261,11 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
     soup = BeautifulSoup(html_data, 'html.parser')
     # collect all elements with selected tags as classes
     classes = re.compile(
-        "(^|_)({})(_|$)".format('|'.join(tags.split(','))) if tags else '^(?!(env|secret)).*'
+        "(^|{})({})({}|$)".format(
+            tag_separator,
+            '|'.join(tags.split(tag_separator)),
+            tag_separator,
+            ) if tags else '^(?!(env|secret)).*'
         )
     code_block_elements = soup.findAll('code', attrs={"class":classes,})
     commander = DocCommander()
@@ -260,7 +273,7 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
         class_name = element.get_attribute_list('class')[0]
         interpreter = None
         if class_name:
-            interpreter = class_name.split("_")[0]
+            interpreter = class_name.split(tag_separator)[0]
         commander.add(
             element.getText(),
             interpreter,

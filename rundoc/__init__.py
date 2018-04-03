@@ -21,3 +21,7 @@ class CodeFailed(RundocException):
     """Raise this when code block returns non-zero exit status."""
     pass
 
+class BadInterpreter(RundocException):
+    """Selected interpreter not found or is not executable by current user."""
+    pass
+

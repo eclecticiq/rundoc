@@ -106,10 +106,10 @@ rundoc run -y input.md -o output.json
 
 ### Tags
 
-By default, rundoc executes all fenced code blocks. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by comma-separated list of tags:
+By default, rundoc executes all fenced code blocks. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
 
 ```bash
-rundoc run -t bash,python3 input.md
+rundoc run -t bash#python3 input.md
 ```
 
 This will execute only those code blocks that have specified highlight tag.
@@ -117,12 +117,12 @@ This will execute only those code blocks that have specified highlight tag.
 If you want to further isolate code blocks of the same highlight tag, you can use rundoc tag syntax, e.g.:
 
 ~~~markdown
- ```bash_custom-branch_v2_test
+ ```bash#custom-branch#v2#test
  echo "custom-tagged code block"
  ```
 ~~~
 
-In this syntax, multiple tags are applied to same code block and are separated with underscore `_`. In the example above there are 4 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
+In this syntax, multiple tags are applied to same code block and are separated with hash symbol `#`. In the example above there are 4 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
 
 ### Environment variables
 

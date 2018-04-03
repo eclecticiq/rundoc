@@ -6,6 +6,9 @@ from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
+from rundoc import BadEnv, CodeFailed, BadInterpreter
+import logging
+import os
 import subprocess
 import sys
 import time
@@ -37,8 +40,14 @@ class DocBlock(object):
                         #   {
                         #       'user_code':'',
                         #       'stdout':'',
-                        #       'retcode':None
+                        #       'retcode':None,
+                        #       'time_start': None,
+                        #       'time_stop': None
                         #   }
+        interpreter_exists = subprocess.call(
+            ['bash', '-c', 'command -v {} 2>&1>/dev/null'.format(interpreter)])
+        if interpreter_exists != 0:
+            raise BadInterpreter("Bad interpreter: '{}'".format(interpreter))
 
     @property
     def last_run(self):
