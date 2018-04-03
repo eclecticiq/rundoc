@@ -35,6 +35,8 @@ Example of fenced code block in markdown file:
 
 Interpreter will be automatically selected using the highlight tag of the code block (in our example `bash`). If highlight tag is not specified, bash will be used by default.
 
+You can also replay all the actions using the output from running a markdown file. Replay will execute all commands as found in the output file.
+
 ### Run markdown file
 
 Execute code blocks in *input.md* file:
@@ -47,7 +49,7 @@ rundoc run input.md
 - When done reviewing/modifying the code block, press *Return* to execute it and move to the next one.
 - Program will exit when last code block is finished executing or when you press **ctrl+c**.
 
-### Skip prompts
+#### Skip prompts
 
 You can use `-y` option to skip prompts and execute all code blocks without user interaction:
 
@@ -73,7 +75,7 @@ But you don't want it to retry right away, correct? You can specify a delay betw
 rundoc run -y -r 10 -P 2 input.md
 ```
 
-### Start from specific step
+#### Start from specific step
 
 You can start at specified step using `-s` or `--step` option:
 
@@ -83,7 +85,7 @@ rundoc run -s5 input.md
 
 This is useful when your N-th code block fails and rundoc exits and you want to continue from that step.
 
-### Save output
+#### Save output
 
 Output can be saved as a json file containing these fields:
 
@@ -104,7 +106,7 @@ To save output use `-o` or `--output` option when running rundoc:
 rundoc run -y input.md -o output.json
 ```
 
-### Tags
+#### Tags
 
 By default, rundoc executes all fenced code blocks. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
 
@@ -124,7 +126,7 @@ If you want to further isolate code blocks of the same highlight tag, you can us
 
 In this syntax, multiple tags are applied to same code block and are separated with hash symbol `#`. In the example above there are 4 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
 
-### Environment variables
+#### Environment variables
 
 You can define required environment variables anywhere in the documentaion as a special code block tagged as `env`:
 
@@ -143,7 +145,7 @@ You can define required environment variables anywhere in the documentaion as a 
 - If you used `-y` option, you will be prompted only for variables that have empty values and are not exported in your current system environment.
 - All variables will be passed to env for every code block that's being executed.
 
-### Force variable collection
+#### Force variable collection
 
 You can force rundoc to check if any of the variables defined with `env` tag is already exported in your current system environment and use it's value instead of the one defined in markdown file. To do this use `-i` or `--inherit-env` option when running rundoc. The list of variables that is presented to you when you run rundoc and that will be used in the session will now contain values defined in the system environment.
 
@@ -151,6 +153,22 @@ You can force rundoc to check if any of the variables defined with `env` tag is 
 export var2=system_value_2
 export var3=system_value_3
 rundoc run input.md -i
+```
+
+### Replay
+
+To replay all code blocks found in output of `run` command, just use `replay` command like so:
+
+```bash
+rundoc replay output.json
+```
+
+The above command will just turn last runs of each code block into a new code block and run them without prompting you about anything (like having `-y` option). It will ignore all run tries that did not succeed. Last run may have original command or user modified one and replay does not think about that, it just runs the last command it finds in each code block.
+
+You can still use `-p`, `-s`, `-o`, `-r`, and `-P` options with `replay` command:
+
+```bash
+rundoc replay -s 2 -p 1 -r 20 -P 5 output.json -o replay_output.json
 ```
 
 Tips and tricks
