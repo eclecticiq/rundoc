@@ -1,46 +1,46 @@
 {
     "code_blocks": [
         {
-            "code": "echo \"bash\"\n",
+            "code": "echo \"bash\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
             "interpreter": "bash",
             "runs": [
                 {
                     "retcode": 0,
-                    "stdout": "bash\n",
-                    "user_code": "echo \"bash\"\n"
+                    "stdout": "bash\n\n\n",
+                    "user_code": "echo \"bash\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
         },
         {
-            "code": "echo \"bash block-1\"\n",
+            "code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
             "interpreter": "bash",
             "runs": [
                 {
                     "retcode": 0,
-                    "stdout": "bash block-1\n",
-                    "user_code": "echo \"bash block-1\"\n"
+                    "stdout": "bash block-1\n\n\n",
+                    "user_code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
         },
         {
-            "code": "echo \"bash block-2\"\n",
+            "code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
             "interpreter": "bash",
             "runs": [
                 {
                     "retcode": 0,
-                    "stdout": "bash block-2\n",
-                    "user_code": "echo \"bash block-2\"\n"
+                    "stdout": "bash block-2\n\n\n",
+                    "user_code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
         },
         {
-            "code": "echo \"bash block-1 block-2\"\n",
+            "code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
             "interpreter": "bash",
             "runs": [
                 {
                     "retcode": 0,
-                    "stdout": "bash block-1 block-2\n",
-                    "user_code": "echo \"bash block-1 block-2\"\n"
+                    "stdout": "bash block-1 block-2\n\n\n",
+                    "user_code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
         }

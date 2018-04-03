@@ -260,11 +260,13 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
     soup = BeautifulSoup(html_data, 'html.parser')
     # collect all elements with selected tags as classes
     classes = re.compile(
-        "(^|{})({})({}|$)".format(
-            tag_separator,
+        "^(?!(env(iron(ment)?)?|secrets?)).*(^|{})({})({}|$).*$".format(
+            re.escape(tag_separator),
             '|'.join(tags.split(tag_separator)),
-            tag_separator,
-            ) if tags else '^(?!(env|secret)).*'
+            re.escape(tag_separator),
+            ) if tags else '^(?!(env(iron(ment)?)?|secrets?)({}|$)).*$'.format(
+                re.escape(tag_separator),
+                )
         )
     code_block_elements = soup.findAll('code', attrs={"class":classes,})
     commander = DocCommander()
@@ -279,12 +281,28 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
             darkbg
         )
     # get env blocks
-    classes = re.compile("^env(iron(ment)?)?$")
+    classes = re.compile(
+        "^env(iron(ment)?)?{}.*({})({}.*)?$".format(
+            re.escape(tag_separator),
+            '|'.join(tags.split(tag_separator)),
+            re.escape(tag_separator),
+            ) if tags else '^env(iron(ment)?)?({}.*)?$'.format(
+                re.escape(tag_separator),
+                )
+        )
     env_elements = soup.findAll('code', attrs={"class":classes,})
     env_string = "\n".join([ x.string for x in env_elements ])
     commander.env.import_string(env_string)
     # get secrets blocks
-    classes = re.compile("^secrets?$")
+    classes = re.compile(
+        "^secrets?{}.*({})({}.*)?$".format(
+            re.escape(tag_separator),
+            '|'.join(tags.split(tag_separator)),
+            re.escape(tag_separator),
+            ) if tags else '^secrets?({}.*)?$'.format(
+                re.escape(tag_separator),
+                )
+        )
     secrets_elements = soup.findAll('code', attrs={"class":classes,})
     secrets_string = "\n".join([ x.string for x in secrets_elements ])
     commander.secrets.import_string(secrets_string)

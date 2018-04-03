@@ -128,10 +128,10 @@ In this syntax, multiple tags are applied to same code block and are separated w
 
 #### Environment variables
 
-You can define required environment variables anywhere in the documentaion as a special code block tagged as `env`:
+You can define required environment variables anywhere in the documentaion as a special code block tagged as `env` or `environment` at the beginning:
 
 ~~~markdown
- ```env
+ ```env#version5
  var1=
  var2=
  var3=default_value_3
@@ -144,6 +144,20 @@ You can define required environment variables anywhere in the documentaion as a 
 - Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your system environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value.
 - If you used `-y` option, you will be prompted only for variables that have empty values and are not exported in your current system environment.
 - All variables will be passed to env for every code block that's being executed.
+- If you use rundoc with tag option `-t`, environment blocks will be filtered in the same way as code blocks.
+
+#### Secrets
+
+You can define required credentials or other secrets anywhere in the documentaion as a special code block tagged as `secret` or `secrets` at the beginning:
+
+~~~markdown
+ ```secrets#production
+ username=
+ password=
+ ```
+~~~
+
+Secrets behave just as `env` blocks with one single difference: they are never saved in the output file and are **expected to be empty in markdown file** so that user must provide them during execution. If you want to use rundoc as part of automation and can't input secrets by hand, you can always export them beforehand and use `-i` option (see next section).
 
 #### Force variable collection
 
