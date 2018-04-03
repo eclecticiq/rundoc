@@ -33,7 +33,7 @@ def __parse_args():
         description="Run markdown as a script."
         )
     parser_run.add_argument(
-        "mkd_file_path", type=str, action="store",
+        "mkd_file", type=str, action="store",
         help="Markdown file path."
         )
     parser_run.add_argument(
@@ -64,7 +64,7 @@ def __parse_args():
         "-o", "--output", type=str, action="store",
         help='''Output file. All codes, modifications and output of execution
                 will be saved here. This file can be later used as an argument
-                to 'rerun' command which will execute all steps without any
+                to 'replay' command which will execute all steps without any
                 user interaction.'''
         )
     parser_run.add_argument(
@@ -95,26 +95,46 @@ def __parse_args():
         output=None,
         )
 
-    parser_rerun = subparsers.add_parser(
-        "rerun",
+    parser_replay = subparsers.add_parser(
+        "replay",
         description="Run codes saved as json output by 'run' command."
         )
-    parser_rerun.add_argument(
-        "saved_output_path", type=str, action="store",
-        help="Path of saved output file from 'run' or 'rerun' command."
+    parser_replay.add_argument(
+        "saved_output", type=str, action="store",
+        help="Path of saved output file from 'run' or 'replay' command."
         )
-    parser_rerun.add_argument(
+    parser_replay.add_argument(
+        "-p", "--pause", type=int, action="store",
+        help="Pause N seconds before each code block. Defaults to 0."
+        )
+    parser_replay.add_argument(
         "-s", "--step", type=int, action="store",
         help="Start at step STEP. Defaults to 1."
         )
-    parser_rerun.add_argument(
+    parser_replay.add_argument(
         "-o", "--output", type=str, action="store",
         help='''Output file. All codes, modifications and output of execution
                 will be saved here. This file can be later used as an input
-                argument to 'rerun' command.'''
+                argument to 'replay' command.'''
         )
-    parser_rerun.set_defaults(
+    parser_replay.add_argument(
+        "--light", action="store_true",
+        help="Light terminal background."
+        )
+    parser_replay.add_argument(
+        "-r", "--retry", type=float, action="store",
+        help="Number of retries for failed code blocks. Defaults to 0."
+        )
+    parser_replay.add_argument(
+        "-P", "--retry-pause", type=float, action="store",
+        help='''Pause N seconds before retrying. Actual pause will be max value
+                of --pause or --retry-pause. Defaults to 1.'''
+        )
+    parser_replay.set_defaults(
+        pause=0,
         step=1,
+        retry=0,
+        retry_pause=1,
         output=None,
         )
 
@@ -141,7 +161,7 @@ def main():
     if args.cmd == 'run':
         try:
             darkbg = not args.light
-            commander = parse_doc(args.mkd_file_path, args.tags, darkbg=darkbg)
+            commander = parse_doc(args.mkd_file, args.tags, darkbg=darkbg)
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
@@ -163,14 +183,29 @@ def main():
             sys.exit(1)
         except CodeFailed as e:
             sys.exit(1)
-    if args.cmd == 'rerun':
-        commander = parse_output(args.saved_output_path)
+    if args.cmd == 'replay':
         try:
-            output = commander.run(start_step=args.step, yes=True)
+            commander = parse_output(args.saved_output)
+        except Exception as e:
+            logger.error('Failed to parse file: {}'.format(e))
+            sys.exit(1)
+        try:
+            commander.run(
+                step=args.step,
+                yes=True,
+                inherit_env=False,
+                pause=args.pause,
+                retry=args.retry,
+                retry_pause=args.retry_pause,
+                output_file=args.output,
+                )
         except KeyboardInterrupt:
             commander.die_with_grace()
+            sys.exit(1)
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
+            sys.exit(1)
+        except CodeFailed as e:
             sys.exit(1)
 
 if __name__ == '__main__':

@@ -237,7 +237,6 @@ class DocCommander(object):
         self.step = 0
         self.write_output()
 
-
 def parse_doc(mkd_file_path, tags="", darkbg=True):
     """Parse code blocks from markdown file and return DocCommander object.
 
@@ -291,23 +290,31 @@ def parse_doc(mkd_file_path, tags="", darkbg=True):
     commander.secrets.import_string(secrets_string)
     return commander
 
-def parse_output(output_file_path):
+def parse_output(output_file, exact=False):
     """Load json output, create and return DocCommander object.
 
+    Each code block recorded in the otput will be parsed and only code from
+    successful attempts will be turned into code blocks for new session. The
+    goal is to use original or user modified inputs as a new script.
+
     Args:
-        output_file_path (str): Path to saved output file.
+        output_file (str): Path to saved output file.
+        exact (bool): NOT IMPLEMENTED YET!
+            If True, a code block will be created for each run try
+            and pause between blocks and tries will be calculated from the
+            timestamps recorded in the file. The goal is to recreate all exact
+            steps that users may have done. Defaults to False.
 
     Returns:
         DocCommander object.
     """
     output_data = None
-    with open(output_file_path, 'r') as f:
+    with open(output_file, 'r') as f:
         output_data = f.read()
     data = json.loads(output_data)
     commander = DocCommander()
-    for d in data:
-        doc_block = DocBlock(d['code'], d['interpreter'])
-        doc_block.user_command = d['user_code']
+    for d in data['code_blocks']:
+        doc_block = DocBlock(d['runs'][-1]['user_code'], d['interpreter'])
         commander.doc_blocks.append(doc_block)
     return commander
 
