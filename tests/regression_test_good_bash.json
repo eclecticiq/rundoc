@@ -5,8 +5,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash\n\n\n",
                     "retcode": 0,
-                    "stdout": "bash\n\n\n",
                     "user_code": "echo \"bash\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
@@ -16,8 +16,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash block-1\n\n\n",
                     "retcode": 0,
-                    "stdout": "bash block-1\n\n\n",
                     "user_code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
@@ -27,8 +27,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash block-2\n\n\n",
                     "retcode": 0,
-                    "stdout": "bash block-2\n\n\n",
                     "user_code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
@@ -38,8 +38,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash block-1 block-2\n\n\n",
                     "retcode": 0,
-                    "stdout": "bash block-1 block-2\n\n\n",
                     "user_code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]

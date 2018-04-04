@@ -91,6 +91,26 @@ test_tags block-2#block-1
 test_tags python#bash
 test_tags bash#python
 
+
+# bad tests
+((tests++))
+if $generate; then
+    rundoc run -y test_bad.md -o regression_test_bad_.json
+else
+    echo -n "$tests. Test stderr."
+    rundoc run -y test_bad.md -o out_test_bad_.json > /dev/null 2>&1
+    compare_len=$(<regression_test_bad_.json | grep '"output"' | wc -c)
+    test_len=$(<out_test_bad_.json | grep '"output"' | wc -c)
+    # because the order of the output is unpredictable we only compare the len
+    if [ "$compare_len" == "$test_len" ]; then
+        echo " -> success"
+    else
+        ((failed_tests++))
+        echo " -> failed"
+    fi
+    rm -f out_test_bad_.json
+fi
+
 # done
 echo "Tests run: $tests"
 echo "Failed tests: $failed_tests"

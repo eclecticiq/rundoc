@@ -89,16 +89,16 @@ This is useful when your N-th code block fails and rundoc exits and you want to 
 
 Output can be saved as a json file containing these fields:
 
-- `env`: dictionary of set environment variables for the session
-- `code_blocks`: list of code blocks that contains the following
-    - `code`: original code
-    - `interpreter`: interpreter used for this code block
-    - `runs`: list of run attempts
-        - `user_code`: code that user actually executed with prompt
-        - `stdout`: complete stdout of the code block
-        - `retcode`: exit code of the code block
-        - `time_start`: timestamp when execution started (seconds from epoch)
-        - `time_stop`: timestamp when execution finished (seconds from epoch)
+- `env` (dict): dictionary of set environment variables for the session
+- `code_blocks` (list): list of code blocks that contains the following
+    - `code` (str): original code
+    - `interpreter` (str): interpreter used for this code block
+    - `runs` (list): list of run attempts
+        - `output` (str): merged stdout and stderr of the code block execution
+        - `retcode` (int): exit code of the code block
+        - `time_start` (float): timestamp when execution started (seconds from epoch)
+        - `time_stop` (float): timestamp when execution finished (seconds from epoch)
+        - `user_code` (str): code that user actually executed with prompt
 
 To save output use `-o` or `--output` option when running rundoc:
 

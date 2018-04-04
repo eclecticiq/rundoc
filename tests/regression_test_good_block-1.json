@@ -5,8 +5,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash block-1\n2 3 8 9 12 13\n4 5 8 9\n",
                     "retcode": 0,
-                    "stdout": "bash block-1\n2 3 8 9 12 13\n4 5 8 9\n",
                     "user_code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
@@ -16,8 +16,8 @@
             "interpreter": "bash",
             "runs": [
                 {
+                    "output": "bash block-1 block-2\n2 3 8 9 12 13\n4 5 8 9\n",
                     "retcode": 0,
-                    "stdout": "bash block-1 block-2\n2 3 8 9 12 13\n4 5 8 9\n",
                     "user_code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
             ]
@@ -27,8 +27,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3 block-1\n2\n3\n8\n9\n12\n13\n4\n5\n8\n9\n",
                     "retcode": 0,
-                    "stdout": "python3 block-1\n2\n3\n8\n9\n12\n13\n4\n5\n8\n9\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]
@@ -38,8 +38,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3 block-1 block-2\n2\n3\n8\n9\n12\n13\n4\n5\n8\n9\n",
                     "retcode": 0,
-                    "stdout": "python3 block-1 block-2\n2\n3\n8\n9\n12\n13\n4\n5\n8\n9\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]

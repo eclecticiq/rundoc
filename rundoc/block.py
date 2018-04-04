@@ -9,6 +9,7 @@ from pygments.lexers import get_lexer_by_name
 from rundoc import BadEnv, CodeFailed, BadInterpreter
 import logging
 import os
+import select
 import subprocess
 import sys
 import time
@@ -23,7 +24,7 @@ class DocBlock(object):
         runs (list): List of dictinaries, each containing the following:
             'user_code': User modified version of the code (will be used
                 instead of main code unless it's set to None or empty string).
-            'stdout': Full output of executed code block.
+            'output': Full output of executed code block.
             'retcode': exit code of the code block executed
     """
     def __init__(self, code, interpreter, darkbg=True):
@@ -39,7 +40,7 @@ class DocBlock(object):
         self.runs = []  # elements inside are like:
                         #   {
                         #       'user_code':'',
-                        #       'stdout':'',
+                        #       'output':'',
                         #       'retcode':None,
                         #       'time_start': None,
                         #       'time_stop': None
@@ -95,11 +96,35 @@ class DocBlock(object):
             style = style_from_pygments(self.HighlightStyle)
             )
 
-    def print_stdout(self):
-        assert self.process
-        line = self.process.stdout.readline().decode('utf-8')
-        self.last_run['stdout'] += line
-        print(line, end='')
+    def print_output(self, final=False):
+        """Read both stdout and stderr, populate them in the variable and print.
+
+        Args:
+            final (bool): Used to collect final bytes after the process exists.
+        """
+        encoding = sys.stdout.encoding
+        if final:
+            line = self.process.stderr.read().decode(encoding)
+            self.last_run['output'] += line
+            sys.stderr.write(line)
+            line = self.process.stdout.read().decode(encoding)
+            self.last_run['output'] += line
+            sys.stdout.write(line)
+        else:
+            assert self.process
+            reads = [self.process.stdout.fileno(), self.process.stderr.fileno()]
+            ret = select.select(reads, [], [])
+            line = ""
+            for fd in ret[0]:
+                if fd == self.process.stderr.fileno():
+                    line = self.process.stderr.readline().decode(encoding)
+                    self.last_run['output'] += line
+                    sys.stderr.write(line)
+                if fd == self.process.stdout.fileno():
+                    line = self.process.stdout.readline().decode(encoding)
+                    self.last_run['output'] += line
+                    sys.stdout.write(line)
+            return len(line) > 0
 
     def is_running(self):
         return self.process and self.process.poll() is None
@@ -108,11 +133,11 @@ class DocBlock(object):
         if not self.process:
             self.runs.append(
                 {
-                    'user_code':'',
-                    'stdout':'',
-                    'retcode':None,
-                    'time_start':None,
-                    'time_stop':None,
+                    'user_code': '',
+                    'output': '',
+                    'retcode': None,
+                    'time_start': None,
+                    'time_stop': None,
                 }
             )
             if prompt:
@@ -124,11 +149,12 @@ class DocBlock(object):
             self.process = subprocess.Popen(
                 [self.interpreter, '-c', code],
                 stdout=subprocess.PIPE,
-                stderr=sys.stdout.buffer,
+                stderr=subprocess.PIPE,
                 shell=False,
                 )
         while self.is_running():
-            self.print_stdout()
+            self.print_output()
+        self.print_output(final=True)
         self.last_run['time_stop'] = time.time()
         self.last_run['retcode'] = self.process.poll()
         self.process = None

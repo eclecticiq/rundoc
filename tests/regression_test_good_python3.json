@@ -5,8 +5,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3\n",
                     "retcode": 0,
-                    "stdout": "python3\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]
@@ -16,8 +16,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3 block-1\n",
                     "retcode": 0,
-                    "stdout": "python3 block-1\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]
@@ -27,8 +27,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3 block-2\n",
                     "retcode": 0,
-                    "stdout": "python3 block-2\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]
@@ -38,8 +38,8 @@
             "interpreter": "python3",
             "runs": [
                 {
+                    "output": "python3 block-1 block-2\n",
                     "retcode": 0,
-                    "stdout": "python3 block-1 block-2\n",
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ]
