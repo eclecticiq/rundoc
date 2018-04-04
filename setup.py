@@ -25,6 +25,6 @@ setup(
         'prompt_toolkit>=1.0.15',
         'pygments>=2.2.0',
     ],
-    python_requires=">=3.4.7",
+    python_requires=">=3.4.6",
 )
 
