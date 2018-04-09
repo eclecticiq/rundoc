@@ -11,10 +11,10 @@ Run code blocks from documentation written in markdown.
 Installation
 -------------------------
 
-### install from pypi
+### install from pypi (recommend)
 `pip3 install rundoc`
 
-### install from github
+### install from github (latest master)
 `pip3 install -U git+https://github.com/EclecticIQ/rundoc.git`
 
 Usage
@@ -33,7 +33,7 @@ Example of fenced code block in markdown file:
  ```
 ~~~
 
-Interpreter will be automatically selected using the highlight tag of the code block (in our example `bash`). If highlight tag is not specified, bash will be used by default.
+Interpreter will be automatically selected using the highlight tag of the code block (in our example `bash`). If highlight tag is not specified, rundoc will ignore that code block.
 
 You can also replay all the actions using the output from running a markdown file. Replay will execute all commands as found in the output file.
 
@@ -108,13 +108,13 @@ rundoc run -y input.md -o output.json
 
 #### Tags
 
-By default, rundoc executes all fenced code blocks. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
+By default, rundoc executes all fenced code blocks that have highlithing tag set in markdown file. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
 
 ```bash
 rundoc run -t bash#python3 input.md
 ```
 
-This will execute only those code blocks that have specified highlight tag.
+This will execute only those code blocks that have at least one of the specified highlight tags: in this example only `bash` and `python` code blocks.
 
 If you want to further isolate code blocks of the same highlight tag, you can use rundoc tag syntax, e.g.:
 
@@ -124,7 +124,14 @@ If you want to further isolate code blocks of the same highlight tag, you can us
  ```
 ~~~
 
-In this syntax, multiple tags are applied to same code block and are separated with hash symbol `#`. In the example above there are 4 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `--tags` option, it will be executed. Code blocks that do not contain any of the specified tags will be skipped.
+In this syntax, multiple tags are applied to same code block and are separated with hash symbol `#`. In the example above there are 4 tags: `bash`, `custom-branch`, `v2` and `test`. First tag always defines the interpreter. If any of it's tags is specified by `-t` or `--tags` option, it will be executed. Code blocks that do not contain at least one of the specified tags will be skipped.
+
+#### More tags
+
+In addition to `-t` or `--tags` option, you can also use the following 2 options to furthere fine-tune your code block filtering:
+
+- `-T` or `--must-have-tags` - same as `--tags` but it requires all listed tags to be present in the markdown code block or it will be skipped. The order of tags is not important.
+- `-N`, or `--must-not-have-tags` - same as `--tags` but it requres that **none** of the listed tags is present in the markdown code block. It is used to filter out unwanted ones.
 
 #### Environment variables
 

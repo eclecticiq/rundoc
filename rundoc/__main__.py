@@ -30,7 +30,11 @@ def __parse_args():
 
     parser_run = subparsers.add_parser(
         "run",
-        description="Run markdown as a script."
+        description='''
+            Extract all code blocks from markdown file and run them as script.
+            First tag in every code block (highlighting tag) will be used as
+            name of the interpreter for that code block. Code blocks can be
+            included and excluded using '-t', '-T' and '-N' tags.'''
         )
     parser_run.add_argument(
         "mkd_file", type=str, action="store",
@@ -39,10 +43,21 @@ def __parse_args():
     parser_run.add_argument(
         "-t", "--tags", action="store",
         help='''Hash (#) separated list of tags (e.g. -t bash#proj-2#test_3).
-                Part of tag until first hash will be used as selected
-                interpreter for that code. If no tags are provided, all code
-                blocks will be used. Untagged code blocks will use bash as
-                default interpreter.'''
+                Filter out all code blocks that are missing all of the listed
+                tags. (Works like OR logic).
+                '''
+        )
+    parser_run.add_argument(
+        "-T", "--must-have-tags", action="store",
+        help='''Hash (#) separated list of tags (e.g. -t bash#proj-2#test_3).
+                Filter out all code blocks that are missing at least one of the
+                listed tags. (Works like AND logic).'''
+        )
+    parser_run.add_argument(
+        "-N", "--must-not-have-tags", action="store",
+        help='''Hash (#) separated list of tags (e.g. -t bash#proj-2#test_3).
+                Filter out all code blocks that contain at least one of the
+                listed tags. (Works like AND NOT logic).'''
         )
     parser_run.add_argument(
         "-i", "--inherit-env", action="store_true",
@@ -87,6 +102,8 @@ def __parse_args():
         )
     parser_run.set_defaults(
         tags="",
+        must_have_tags="",
+        must_not_have_tags="",
         inherit_env=False,
         pause=0,
         step=1,
@@ -161,7 +178,13 @@ def main():
     if args.cmd == 'run':
         try:
             darkbg = not args.light
-            commander = parse_doc(args.mkd_file, args.tags, darkbg=darkbg)
+            commander = parse_doc(
+                args.mkd_file,
+                args.tags,
+                args.must_have_tags,
+                args.must_not_have_tags,
+                darkbg=darkbg,
+                )
         except BadEnv as e:
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
