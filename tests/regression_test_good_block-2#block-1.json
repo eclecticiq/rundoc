@@ -9,7 +9,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-1"
         },
         {
             "code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
@@ -20,7 +21,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-2"
         },
         {
             "code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
@@ -31,7 +33,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-1#block-2"
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -42,7 +45,8 @@
                     "retcode": 0,
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
-            ]
+            ],
+            "tags": "python3#block-1"
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -53,7 +57,8 @@
                     "retcode": 0,
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
-            ]
+            ],
+            "tags": "python3#block-2"
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -64,7 +69,8 @@
                     "retcode": 0,
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
-            ]
+            ],
+            "tags": "python3#block-1#block-2"
         }
     ],
     "env": {

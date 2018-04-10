@@ -9,7 +9,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash"
         },
         {
             "code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
@@ -20,7 +21,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-1\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-1"
         },
         {
             "code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
@@ -31,7 +33,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-2"
         },
         {
             "code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n",
@@ -42,7 +45,8 @@
                     "retcode": 0,
                     "user_code": "echo \"bash block-1 block-2\"\neval 'echo $r_env_{0..13}'\neval 'echo $r_sec_{0..9}'\n"
                 }
-            ]
+            ],
+            "tags": "bash#block-1#block-2"
         }
     ],
     "env": {}

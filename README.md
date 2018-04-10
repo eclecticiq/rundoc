@@ -207,3 +207,17 @@ You can list all unique tags that appear in the file and their counts by using `
 rundoc list-tags input.md
 ```
 
+### List code blocks
+
+Wouldn't it be great to be able to list all code blocks that are going to be executed before actually using `run` command? You can! To print json file similar to output but without actually running anything you can use `list-blocks` command:
+
+```bash
+rundoc list-blocks -t bash -T tag1#tag2#tag3 -N tag4#tag5 input.md
+```
+
+or add `--pretty` option to have human readable output:
+
+```bash
+rundoc list-blocks -t bash -T tag1#tag2#tag3 -N tag4#tag5 input.md --pretty
+```
+

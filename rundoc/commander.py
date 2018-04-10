@@ -136,11 +136,11 @@ class DocCommander(object):
             'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
         }
 
-    def add(self, code, interpreter, darkbg=True):
+    def add(self, code, interpreter, darkbg=True, tags=""):
         if not interpreter:
             raise Exception("No interpreter set.")
         try:
-            self.doc_blocks.append(DocBlock(code, interpreter, darkbg))
+            self.doc_blocks.append(DocBlock(code, interpreter, darkbg, tags))
         except RundocException as re:
             logging.error(str(re))
             if self.running:

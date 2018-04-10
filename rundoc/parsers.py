@@ -104,7 +104,7 @@ def parse_doc(mkd_file_path, tags="", must_have_tags="", must_not_have_tags="",
         class_name = element.get_attribute_list('class')[0]
         if class_name:
             interpreter = class_name.split(tag_separator)[0]
-            commander.add(element.getText(), interpreter, darkbg)
+            commander.add(element.getText(), interpreter, darkbg, class_name)
     # get env blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
         is_env=True, tag_separator=tag_separator)
@@ -143,7 +143,8 @@ def parse_output(output_file, exact=False):
     data = json.loads(output_data)
     commander = DocCommander()
     for d in data['code_blocks']:
-        doc_block = DocBlock(d['runs'][-1]['user_code'], d['interpreter'])
+        doc_block = DocBlock(d['runs'][-1]['user_code'], d['interpreter'],
+            d['tags'])
         commander.doc_blocks.append(doc_block)
     return commander
 
@@ -166,8 +167,20 @@ def get_tags(mkd_file_path, tag_separator="#"):
                 tag_dict[tag] += 1
     sorted_tag_dict = sorted(tag_dict.items(), key=operator.itemgetter(1),
         reverse=True)
-    max_num_len = len(str(sorted_tag_dict[0][0]))
-    for key, value in sorted_tag_dict:
-        print("{}{}{}".format(value, ' '*(max_num_len - len(str(value))), key))
+    return sorted_tag_dict
 
+def print_blocks(mkd_file_path, tags="", must_have_tags="",
+    must_not_have_tags="", darkbg=True, tag_separator="#", pretty=False):
+    commander = parse_doc(mkd_file_path, tags, must_have_tags,
+        must_not_have_tags, darkbg, tag_separator)
+    if pretty:
+        step = 0
+        for block in commander.doc_blocks:
+            step += 1
+            print("{}. [{}] {}".format(step, block.interpreter, block.tags))
+            print("=================")
+            print(block)
+            print("")
+    else:
+        print(json.dumps(commander.get_dict(), sort_keys=True, indent=4))
 

@@ -27,7 +27,7 @@ class DocBlock(object):
             'output': Full output of executed code block.
             'retcode': exit code of the code block executed
     """
-    def __init__(self, code, interpreter, darkbg=True):
+    def __init__(self, code, interpreter, darkbg=True, tags=""):
         if darkbg:
             from pygments.styles.monokai import MonokaiStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
@@ -36,6 +36,7 @@ class DocBlock(object):
             self.HighlightStyle = HighlightStyle
         self.interpreter = interpreter
         self.code = code
+        self.tags = tags
         self.process = None
         self.runs = []  # elements inside are like:
                         #   {
@@ -85,6 +86,7 @@ class DocBlock(object):
         return {
             'interpreter': self.interpreter,
             'code': self.code,
+            'tags': self.tags,
             'runs': self.runs,
         }
 
