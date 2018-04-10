@@ -199,4 +199,11 @@ Tips and tricks
 
 Are you using light terminal background and can't see sh\*t? Use rundoc with `--light` option and save your eyesight!
 
+### List tags
+
+You can list all unique tags that appear in the file and their counts by using `list-tags` command:
+
+```bash
+rundoc list-tags input.md
+```
 

@@ -2,7 +2,7 @@
 Main module for rundoc command line utility.
 """
 from rundoc import BadEnv, CodeFailed
-from rundoc.parsers import parse_doc, parse_output 
+from rundoc import parsers
 import argcomplete
 import argparse
 import logging
@@ -155,6 +155,16 @@ def __parse_args():
         output=None,
         )
 
+    parser_list_tags = subparsers.add_parser(
+        "list-tags",
+        description='''List all unique tags that appear in the markdown file
+                    and number of occurrences.'''
+        )
+    parser_list_tags.add_argument(
+        "mkd_file", type=str, action="store",
+        help="Markdown file path."
+        )
+
     argcomplete.autocomplete(parser)
     return parser.parse_args()
 
@@ -178,7 +188,7 @@ def main():
     if args.cmd == 'run':
         try:
             darkbg = not args.light
-            commander = parse_doc(
+            commander = parsers.parse_doc(
                 args.mkd_file,
                 args.tags,
                 args.must_have_tags,
@@ -208,7 +218,7 @@ def main():
             sys.exit(1)
     if args.cmd == 'replay':
         try:
-            commander = parse_output(args.saved_output)
+            commander = parsers.parse_output(args.saved_output)
         except Exception as e:
             logger.error('Failed to parse file: {}'.format(e))
             sys.exit(1)
@@ -229,6 +239,12 @@ def main():
             print("{}{}{}".format(clr.red, e, clr.end))
             sys.exit(1)
         except CodeFailed as e:
+            sys.exit(1)
+    if args.cmd == 'list-tags':
+        try:
+            tags = parsers.get_tags(args.mkd_file)
+        except Exception as e:
+            logger.error('Failed to parse file: {}'.format(e))
             sys.exit(1)
 
 if __name__ == '__main__':

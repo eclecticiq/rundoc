@@ -1,12 +1,13 @@
 """
 Tools for parsing markdown docs.
 """
-
 from bs4 import BeautifulSoup
+from collections import defaultdict
 from rundoc.block import DocBlock
 from rundoc.commander import DocCommander
 import json
 import markdown
+import operator
 import re
 
 def generate_match_class(tags="", must_have_tags="", must_not_have_tags="",
@@ -145,4 +146,28 @@ def parse_output(output_file, exact=False):
         doc_block = DocBlock(d['runs'][-1]['user_code'], d['interpreter'])
         commander.doc_blocks.append(doc_block)
     return commander
+
+def get_tags(mkd_file_path, tag_separator="#"):
+    mkd_data = ""
+    tag_dict = defaultdict(int)
+    with open(mkd_file_path, 'r') as f:
+        mkd_data = f.read()
+    html_data = markdown.markdown(
+        mkd_data,
+        extensions=['toc', 'tables', 'footnotes', 'fenced_code']
+        )
+    soup = BeautifulSoup(html_data, 'html.parser')
+    match = re.compile("^.+$")
+    code_block_elements = soup.findAll(name='code', attrs={"class":match,})
+    for element in code_block_elements:
+        class_name = element.get_attribute_list('class')[0]
+        if class_name:
+            for tag in class_name.split(tag_separator):
+                tag_dict[tag] += 1
+    sorted_tag_dict = sorted(tag_dict.items(), key=operator.itemgetter(1),
+        reverse=True)
+    max_num_len = len(str(sorted_tag_dict[0][0]))
+    for key, value in sorted_tag_dict:
+        print("{}{}{}".format(value, ' '*(max_num_len - len(str(value))), key))
+
 
