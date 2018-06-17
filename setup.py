@@ -20,7 +20,7 @@ setup(
     },
     install_requires = [
         'argcomplete>=1.9.2,<2.0',
-        'bs4',
+        'bs4>=0.0.1,<0.1',
         'markdown>=2.6.9,<3.0',
         'prompt_toolkit>=2.0,<3.0',
         'pygments>=2.2.0,<3.0',
