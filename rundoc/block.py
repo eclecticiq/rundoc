@@ -2,7 +2,7 @@
 Contains class representation of executable code block.
 """
 from prompt_toolkit import prompt
-from prompt_toolkit.styles import style_from_pygments
+from prompt_toolkit.styles import pygments as style_from_pygments
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name

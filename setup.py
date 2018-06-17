@@ -19,11 +19,11 @@ setup(
         ],
     },
     install_requires = [
-        'argcomplete>=1.9.2',
+        'argcomplete>=1.9.2,<2.0',
         'bs4',
-        'markdown>=2.6.9',
-        'prompt_toolkit>=1.0.15,<2.0',
-        'pygments>=2.2.0',
+        'markdown>=2.6.9,<3.0',
+        'prompt_toolkit>=2.0,<3.0',
+        'pygments>=2.2.0,<3.0',
     ],
     python_requires=">=3.4.6",
 )
