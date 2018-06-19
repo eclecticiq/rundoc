@@ -1,5 +1,6 @@
-rundoc
+🏃 rundoc 📖
 ==================================================
+[![Gitter Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rundoc/Lobby)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Status](https://travis-ci.org/eclecticiq/rundoc.png)](https://travis-ci.org/eclecticiq/rundoc)
@@ -7,7 +8,16 @@ rundoc
 [![Documentation Status](https://readthedocs.org/projects/rundoc/badge/?version=latest)](http://rundoc.readthedocs.io/en/latest/?badge=latest)
 <!--[![Code Health](https://landscape.io/github/EclecticIQ/rundoc/master/landscape.svg?style=flat)](https://landscape.io/github/EclecticIQ/rundoc/master)-->
 
-Run code blocks from documentation written in markdown.
+A command-line utility that runs code blocks from documentation written in markdown.
+
+Overview
+-------------------------
+
+This utility allows you to run your markdown files as if they were scripts. Every code snippet with code highlighting tag is run with interpreter defined by the tag.
+
+### Why do this?
+
+We had a very long installation documentation for our project and needed a quick way of testing it. That's how rundoc is born. It is now a general purpose tool that can be used for multiple purposes like executing a tutorial documentation, using docs as a script, etc.
 
 Installation
 -------------------------
@@ -34,9 +44,9 @@ Example of fenced code block in markdown file:
  ```
 ~~~
 
-Interpreter will be automatically selected using the highlight tag of the code block (in our example `bash`). If highlight tag is not specified, rundoc will ignore that code block.
+Interpreter will be automatically selected using the highlight tag of the code block (in above example `bash`). If highlight tag is not specified, rundoc will ignore that code block.
 
-You can also replay all the actions using the output from running a markdown file. Replay will execute all commands as found in the output file.
+Rundoc can save json file after execution, which contains all code blocks and their outputs. You can also replay all the actions by running this output file.
 
 ### Run markdown file
 
@@ -134,9 +144,11 @@ In addition to `-t` or `--tags` option, you can also use the following 2 options
 - `-T` or `--must-have-tags` - same as `--tags` but it requires all listed tags to be present in the markdown code block or it will be skipped. The order of tags is not important.
 - `-N`, or `--must-not-have-tags` - same as `--tags` but it requres that **none** of the listed tags is present in the markdown code block. It is used to filter out unwanted ones.
 
+You can use any of the tags features individually or combine them.
+
 #### Environment variables
 
-You can define required environment variables anywhere in the documentaion as a special code block tagged as `env` or `environment` at the beginning:
+Define required environment variables anywhere in the documentaion with a special code block tagged as `env` or `environment` at the beginning:
 
 ~~~markdown
  ```env#version5
