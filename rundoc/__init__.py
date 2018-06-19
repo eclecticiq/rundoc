@@ -3,10 +3,10 @@ Tool that let's you run code blocks from a markdown file in controlled manner.
 """
 
 __version__ = "0.2.4"
-__licence__ = "BSD"
+__license__ = "BSD"
 __year__ = "2017"
-__author__ = "EclecticIQ"
-__author_email__ = "info@eclecticiq.com"
+__author__ = "Predrag Mandic"
+__author_email__ = "predrag@eclecticiq.com"
 
 
 class RundocException(Exception):
