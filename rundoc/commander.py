@@ -74,7 +74,7 @@ class OrderedEnv(OrderedDict):
         msg = msg.format(clr.bold, clr.end)
         print(msg)
         env_string = str(self)
-        env_string = prompt( '» ', default = env_string )
+        env_string = prompt( '[env]\n', default = env_string )
         self.clear()
         self.import_string(env_string, collect_existing_env=False)
 

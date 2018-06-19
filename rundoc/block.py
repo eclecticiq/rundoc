@@ -2,7 +2,8 @@
 Contains class representation of executable code block.
 """
 from prompt_toolkit import prompt
-from prompt_toolkit.styles import pygments as style_from_pygments
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
@@ -29,7 +30,7 @@ class DocBlock(object):
     """
     def __init__(self, code, interpreter, darkbg=True, tags=""):
         if darkbg:
-            from pygments.styles.monokai import MonokaiStyle as HighlightStyle
+            from pygments.styles.native import NativeStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
         else:
             from pygments.styles.manni import ManniStyle as HighlightStyle
@@ -94,8 +95,8 @@ class DocBlock(object):
         self.last_run['user_code'] = prompt(
             prompt_text,
             default = self.code,
-            lexer = self.get_lexer_class(),
-            style = style_from_pygments(self.HighlightStyle)
+            lexer = PygmentsLexer(self.get_lexer_class()),
+            style = style_from_pygments_cls(self.HighlightStyle)
             )
 
     def print_output(self, final=False):
