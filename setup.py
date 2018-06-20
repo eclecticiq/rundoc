@@ -8,7 +8,7 @@ def here(*path):
     return os.path.join(os.path.dirname(__file__), *path)
 
 def get_file_contents(filename):
-    with open(here(filename)) as fp:
+    with open(here(filename), 'r', encoding='utf8') as fp:
         return fp.read()
 
 setup(

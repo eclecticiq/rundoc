@@ -1,4 +1,4 @@
-🏃 rundoc 📖
+rundoc 🏃📖
 ==================================================
 [![Gitter Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rundoc/Lobby)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
