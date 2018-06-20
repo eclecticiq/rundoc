@@ -22,8 +22,8 @@ Installation
 ### install from pypi (recommend)
 `pip3 install rundoc`
 
-### install from github (latest master)
-`pip3 install -U git+https://github.com/EclecticIQ/rundoc.git`
+### install from git (latest master)
+`pip3 install -U git+https://gitlab.com/nul.one/rundoc.git`
 
 Usage
 -------------------------
