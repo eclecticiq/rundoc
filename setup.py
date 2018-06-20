@@ -1,6 +1,7 @@
-!/usr/bin/env python3
+#!/usr/bin/env python3
 
 from setuptools import setup, find_packages
+import os
 import rundoc
 
 def here(*path):
@@ -14,8 +15,8 @@ setup(
     name = 'rundoc',
     description = rundoc.__doc__.strip(),
     long_description=get_file_contents('README.md'),
-    url = 'https://github.com/EclecticIQ/rundoc',
-    download_url = 'https://github.com/EclecticIQ/rundoc/archive/'+rundoc.__version__+'.tar.gz',
+    url = 'https://gitlab.com/nul.one/rundoc',
+    download_url = 'https://gitlab.com/nul.one/rundoc/-/archive/rundoc-{0}/rundoc-rundoc-{0}.tar.gz'.format(rundoc.__version__),
     version = rundoc.__version__,
     author = rundoc.__author__,
     author_email = rundoc.__author_email__,
