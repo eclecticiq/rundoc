@@ -1,11 +1,19 @@
-#!/usr/bin/env python3
+!/usr/bin/env python3
 
 from setuptools import setup, find_packages
 import rundoc
 
+def here(*path):
+    return os.path.join(os.path.dirname(__file__), *path)
+
+def get_file_contents(filename):
+    with open(here(filename)) as fp:
+        return fp.read()
+
 setup(
     name = 'rundoc',
     description = rundoc.__doc__.strip(),
+    long_description=get_file_contents('README.md'),
     url = 'https://github.com/EclecticIQ/rundoc',
     download_url = 'https://github.com/EclecticIQ/rundoc/archive/'+rundoc.__version__+'.tar.gz',
     version = rundoc.__version__,
