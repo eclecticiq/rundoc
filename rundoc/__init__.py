@@ -2,7 +2,7 @@
 Tool that let's you run code blocks from a markdown file in controlled manner.
 """
 
-__version__ = "0.2.5"
+__version__ = "0.2.6"
 __license__ = "BSD"
 __year__ = "2017"
 __author__ = "Predrag Mandic"
