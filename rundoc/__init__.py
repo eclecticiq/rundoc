@@ -1,12 +1,14 @@
 """
-Tool that let's you run code blocks from a markdown file in controlled manner.
+A command-line utility that runs code blocks from markdown files.
 """
 
 __version__ = "0.2.6"
 __license__ = "BSD"
-__year__ = "2017"
+__year__ = "2017-2018"
 __author__ = "Predrag Mandic"
 __author_email__ = "predrag@eclecticiq.com"
+__copyright__ = "Copyright {} {} <{}>".format(
+    __year__, __author__, __author_email__)
 
 
 class RundocException(Exception):

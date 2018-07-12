@@ -28,12 +28,12 @@ class DocBlock(object):
             'output': Full output of executed code block.
             'retcode': exit code of the code block executed
     """
-    def __init__(self, code, interpreter, darkbg=True, tags=""):
-        if darkbg:
-            from pygments.styles.native import NativeStyle as HighlightStyle
+    def __init__(self, code, interpreter, light=False, tags=""):
+        if light:
+            from pygments.styles.manni import ManniStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
         else:
-            from pygments.styles.manni import ManniStyle as HighlightStyle
+            from pygments.styles.native import NativeStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
         self.interpreter = interpreter
         self.code = code

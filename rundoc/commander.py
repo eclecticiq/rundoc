@@ -118,7 +118,7 @@ class DocCommander(object):
         self.doc_blocks = []
         self.running = False
         self.step = None
-        self.output_file = None
+        self.output = None
 
     @property
     def doc_block(self):
@@ -136,11 +136,18 @@ class DocCommander(object):
             'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
         }
 
-    def add(self, code, interpreter, darkbg=True, tags=""):
+    def add(self, code, interpreter, light=False, tags=""):
         if not interpreter:
             raise Exception("No interpreter set.")
         try:
-            self.doc_blocks.append(DocBlock(code, interpreter, darkbg, tags))
+            self.doc_blocks.append(
+                DocBlock(
+                    code=code,
+                    interpreter=interpreter,
+                    light=light,
+                    tags=tags,
+                    )
+                )
         except RundocException as re:
             logging.error(str(re))
             if self.running:
@@ -156,19 +163,19 @@ class DocCommander(object):
                 clr.end,
                 )
             )
-        if self.output_file:
-            with open(self.output_file, 'w+') as f:
-                f.write(json.dumps(self.get_dict(), sort_keys=True, indent=4))
+        if self.output:
+            self.output.write(
+                json.dumps(self.get_dict(), sort_keys=True, indent=4))
 
     def write_output(self):
-        if self.output_file:
-            with open(self.output_file, 'w+') as f:
-                f.write(json.dumps(self.get_dict(), sort_keys=True, indent=4))
-            print("Output written to: {}".format(self.output_file))
+        if self.output:
+            self.output.write(
+                json.dumps(self.get_dict(), sort_keys=True, indent=4))
+            print("Output written to: {}".format(self.output.name))
 
     def run(self,
         step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
-        output_file=None):
+        output=None, **kwargs):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
@@ -181,11 +188,11 @@ class DocCommander(object):
             retry (int): Number of times a step will retry to execute before
                 giving up and failing.
             retry_pause (float): Additional pause before retrying same step.
-            output_file (str): Output file path.
+            output (file): Writable file-like object.
         """
         assert self.running == False
-        if output_file is not None:
-            self.output_file = output_file
+        if output is not None:
+            self.output = output
         if inherit_env:
             self.env.inherit_existing_env()
         if yes:

@@ -67,29 +67,27 @@ def generate_match_class(tags="", must_have_tags="", must_not_have_tags="",
         return True
     return match_class
 
-def parse_doc(mkd_file_path, tags="", must_have_tags="", must_not_have_tags="",
-    darkbg=True, tag_separator="#"):
+def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
+    light=False, tag_separator="#", **kwargs):
     """Parse code blocks from markdown file and return DocCommander object.
 
     Args:
-        mkd_file_path (str): Path to markdown file.
+        input (file): Readable file-like object pointing to markdown file.
         tags (str): Hash (#) separated list of tags. Markdown code block that
             contain at least one of them will be used.
         must_have_tags (str): Like 'tags' but require markdown code block to
             contain all of them (order not important).
         must_not_have_tags (str): Like 'tags' but require markdown code block
             to contain non of them.
-        darkbg (bool): Will use dark backgrond color theme if set to True.
-            Defaults to True.
+        light (bool): Will use light backgrond color theme if set to True.
+            Defaults to False.
         tag_separator (str): Allows to use different tag separator. Defaults to
             hash symbol (#).
 
     Returns:
         DocCommander object.
     """
-    mkd_data = ""
-    with open(mkd_file_path, 'r') as f:
-        mkd_data = f.read()
+    mkd_data = input.read()
     html_data = markdown.markdown(
         mkd_data,
         extensions=['toc', 'tables', 'footnotes', 'fenced_code']
@@ -104,7 +102,7 @@ def parse_doc(mkd_file_path, tags="", must_have_tags="", must_not_have_tags="",
         class_name = element.get_attribute_list('class')[0]
         if class_name:
             interpreter = class_name.split(tag_separator)[0]
-            commander.add(element.getText(), interpreter, darkbg, class_name)
+            commander.add(element.getText(), interpreter, light, class_name)
     # get env blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
         is_env=True, tag_separator=tag_separator)
@@ -119,7 +117,7 @@ def parse_doc(mkd_file_path, tags="", must_have_tags="", must_not_have_tags="",
     commander.secrets.import_string(secrets_string)
     return commander
 
-def parse_output(output_file, exact=False):
+def parse_output(input, exact_timing=False, light=False, **kwargs):
     """Load json output, create and return DocCommander object.
 
     Each code block recorded in the otput will be parsed and only code from
@@ -127,32 +125,34 @@ def parse_output(output_file, exact=False):
     goal is to use original or user modified inputs as a new script.
 
     Args:
-        output_file (str): Path to saved output file.
-        exact (bool): NOT IMPLEMENTED YET!
+        output (file): Readable file-like object.
+        exact_timing (bool): NOT IMPLEMENTED YET!
             If True, a code block will be created for each run try
             and pause between blocks and tries will be calculated from the
             timestamps recorded in the file. The goal is to recreate all exact
             steps that users may have done. Defaults to False.
+        light (bool): Will use light backgrond color theme if set to True.
+            Defaults to False.
 
     Returns:
         DocCommander object.
     """
-    output_data = None
-    with open(output_file, 'r') as f:
-        output_data = f.read()
+    output_data = input.read()
     data = json.loads(output_data)
     commander = DocCommander()
     for d in data['code_blocks']:
-        doc_block = DocBlock(d['runs'][-1]['user_code'], d['interpreter'],
-            d['tags'])
+        doc_block = DocBlock(
+            code=d['runs'][-1]['user_code'],
+            interpreter=d['interpreter'],
+            light=light,
+            tags=d['tags']
+            )
         commander.doc_blocks.append(doc_block)
     return commander
 
-def get_tags(mkd_file_path, tag_separator="#"):
-    mkd_data = ""
+def get_tags(input, tag_separator="#"):
     tag_dict = defaultdict(int)
-    with open(mkd_file_path, 'r') as f:
-        mkd_data = f.read()
+    mkd_data = input.read()
     html_data = markdown.markdown(
         mkd_data,
         extensions=['toc', 'tables', 'footnotes', 'fenced_code']
@@ -169,10 +169,10 @@ def get_tags(mkd_file_path, tag_separator="#"):
         reverse=True)
     return sorted_tag_dict
 
-def print_blocks(mkd_file_path, tags="", must_have_tags="",
-    must_not_have_tags="", darkbg=True, tag_separator="#", pretty=False):
-    commander = parse_doc(mkd_file_path, tags, must_have_tags,
-        must_not_have_tags, darkbg, tag_separator)
+def print_blocks(input, tags="", must_have_tags="",
+    must_not_have_tags="", light=False, tag_separator="#", pretty=False):
+    commander = parse_doc(input, tags, must_have_tags,
+        must_not_have_tags, light, tag_separator)
     if pretty:
         step = 0
         for block in commander.doc_blocks:

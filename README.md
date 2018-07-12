@@ -99,6 +99,7 @@ Output can be saved as a json file containing these fields:
 - `code_blocks` (list): list of code blocks that contains the following
     - `code` (str): original code
     - `interpreter` (str): interpreter used for this code block
+    - `tags` (str): tags as they appear in markdown file
     - `runs` (list): list of run attempts
         - `output` (str): merged stdout and stderr of the code block execution
         - `retcode` (int): exit code of the code block
@@ -186,12 +187,12 @@ To replay all code blocks found in output of `run` command, just use `replay` co
 rundoc replay output.json
 ```
 
-The above command will just turn last runs of each code block into a new code block and run them without prompting you about anything (like having `-y` option). It will ignore all run tries that did not succeed. Last run may have original command or user modified one and replay does not think about that, it just runs the last command it finds in each code block.
+The above command will just turn last runs of each code block into a new code block and run them. It will ignore all run tries that did not succeed at first. Last run may have original command or user modified one and replay does not care about that, it just runs the last command it finds in each code block.
 
-You can still use `-p`, `-s`, `-o`, `-r`, and `-P` options with `replay` command:
+You can still use `-y`, `-p`, `-s`, `-o`, `-r`, and `-P` options with `replay` command:
 
 ```bash
-rundoc replay -s 2 -p 1 -r 20 -P 5 output.json -o replay_output.json
+rundoc replay -s 2 -p 1 -r 20 -P 5 output.json -o replay_output.json -y
 ```
 
 Tips and tricks

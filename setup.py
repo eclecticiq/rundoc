@@ -24,7 +24,7 @@ setup(
     packages = [ 'rundoc' ],
     entry_points={ 
         'console_scripts': [
-            'rundoc=rundoc.__main__:main',
+            'rundoc=rundoc.__main__:cli',
         ],
     },
     classifiers=[
@@ -44,8 +44,8 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires = [
-        'argcomplete>=1.9.2,<2.0',
         'beautifulsoup4>=4.4.1,<5.0',
+        'click>=6.7,<7.0',
         'markdown>=2.6.9,<3.0',
         'prompt_toolkit>=2.0,<3.0',
         'pygments>=2.2.0,<3.0',
