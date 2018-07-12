@@ -202,8 +202,10 @@ class DocCommander(object):
         self.running = True
         self.step = step
         while self.step in range(step, len(self.doc_blocks)+1):
-            prompt_text = "\n{}=== Step {} [{}]{}".format(
-                clr.bold, self.step, self.doc_block.interpreter, clr.end)
+            tags = '[{}] '.format(self.doc_block.interpreter)
+            tags += ' '.join(self.doc_block.tags.split('#')[1:])
+            prompt_text = "\n{}=== Step {} {}{}".format(
+                clr.bold, self.step, tags, clr.end)
             print(prompt_text)
             if yes:
                 print(self.doc_block)
