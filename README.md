@@ -1,4 +1,5 @@
-rundoc 🏃📖
+
+rundoc <img height="60px" src="https://paste.nul.one/2018-07-13_02.42.55.259669121_md5_ecd6014ae193f9ee519c9f423fbd69f1_logo.svg">
 ==================================================
 [![Gitter Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rundoc/Lobby)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
@@ -223,4 +224,15 @@ or add `--pretty` option to have human readable output:
 ```bash
 rundoc list-blocks -t bash -T tag1#tag2#tag3 -N tag4#tag5 input.md --pretty
 ```
+
+Similar projects
+-------------------------
+
+List of similar projects that I found:
+
+- [codedown](https://github.com/earldouglas/codedown)
+- [runDOC](https://github.com/schneems/rundoc)
+
+If you bump into more, let me know.
+
 
