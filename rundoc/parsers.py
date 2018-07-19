@@ -107,7 +107,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
         is_env=True, tag_separator=tag_separator)
     env_elements = soup.findAll(name='code', attrs={"class":match,})
-    env_string = "\n".join([ x.string for x in env_elements ])
+    env_string = "\n".join([ x.string or '' for x in env_elements ])
     commander.env.import_string(env_string)
     # get secrets blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
