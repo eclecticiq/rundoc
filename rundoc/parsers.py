@@ -101,7 +101,9 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     for element in code_block_elements:
         class_name = element.get_attribute_list('class')[0]
         if class_name:
-            interpreter = class_name.split(tag_separator)[0]
+            tags_list = class_name.split(tag_separator)
+            tags_list = list(filter(bool, tags_list)) # remove empty strings
+            interpreter = tags_list[0]
             commander.add(element.getText(), interpreter, light, class_name)
     # get env blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
