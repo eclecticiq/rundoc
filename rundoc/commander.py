@@ -3,25 +3,13 @@ Classes and tools for manipulating code block execution.
 """
 from collections import OrderedDict
 from prompt_toolkit import prompt
-from rundoc import RundocException, BadEnv, CodeFailed, BadInterpreter
+from rundoc import clr, RundocException, BadEnv, CodeFailed, BadInterpreter
 from rundoc.block import DocBlock
 from time import sleep
 import json
 import logging
 import os
 import sys
-
-class clr:
-    ''' 
-    ANSI colors for pretty output.
-    '''
-    red = '\033[91m'
-    green = '\033[92m'
-    blue = '\033[94m'
-    yellow = '\033[93m'
-    bold = '\033[1m'
-    underline = '\033[4m'
-    end = '\033[0m'
 
 class OrderedEnv(OrderedDict):
     """Dictionary of environment variables.
@@ -174,17 +162,16 @@ class DocCommander(object):
             print("Output written to: {}".format(self.output.name))
 
     def run(self,
-        step=1, yes=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
+        step=1, ask=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
         output=None, **kwargs):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
             step (int): Number of step to start with. Steps start at 1.
-            yes (bool): Auto-confirm all steps without user interaction.
+            ask (bool): Ask user to confirm each step.
             inherit_env (bool): Override env defaults in docs with exported
                 values from outside env (for those that exist).
-            pause (float): Add a delay in seconds before the start of each
-                step. Makes sense only when 'yes' is set to True.
+            pause (float): A delay in seconds before the start of each step.
             retry (int): Number of times a step will retry to execute before
                 giving up and failing.
             retry_pause (float): Additional pause before retrying same step.
@@ -195,12 +182,12 @@ class DocCommander(object):
             self.output = output
         if inherit_env:
             self.env.inherit_existing_env()
-        if yes:
-            self.env.prompt_missing()
-            self.secrets.prompt_missing()
-        else:
+        if ask:
             self.env.prompt()
             self.secrets.prompt()
+        else:
+            self.env.prompt_missing()
+            self.secrets.prompt_missing()
         msg = "\n{}Running code blocks from supplied documentation."
         msg += "\nModify and/or confirm displayed code by pressing Return.{}"
         print(msg.format(clr.bold, clr.end))
@@ -214,10 +201,10 @@ class DocCommander(object):
             prompt_text = "\n{}=== Step {} {}{}".format(
                 clr.bold, self.step, tags, clr.end)
             print(prompt_text)
-            if yes:
+            if not ask:
                 print(self.doc_block)
                 sleep(pause)
-            self.doc_block.run(prompt = not yes) # run in blocking manner
+            self.doc_block.run(prompt = ask) # run in blocking manner
             if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
                     clr.green, self.step, clr.end))
@@ -227,7 +214,7 @@ class DocCommander(object):
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                 clr.red, self.step, self.doc_block.last_run['retcode'], clr.end))
-            if not yes:
+            if ask:
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(clr.red, clr.bold, self.step, clr.end))

@@ -1,11 +1,11 @@
 """
 Main module for rundoc command line utility.
 """
+from rundoc import parsers, clr
 from textwrap import dedent
 import click
 import logging
 import rundoc
-import rundoc.parsers as parsers
 import sys
 
 logger = logging.getLogger(__name__)
@@ -23,10 +23,10 @@ _run_control_options = [
         help="Step number to start at (greater than 0)."
     ),
     click.option('-p', '--pause', default=0.0, show_default=True,
-        help="Number of seconds to pause before each code block if using '-y'."
+        help="Number of seconds to pause before each code block."
     ),
     click.option('-r', '--retry', default=0, show_default=True,
-        help="Number of retries for failed code blocks when using -y option."
+        help="Number of retries for failed code blocks."
     ),
     click.option('-P', '--retry-pause', default=1.0, show_default=True,
         help=dedent(
@@ -40,7 +40,12 @@ _run_control_options = [
         'replay' command.""")
     ),
     click.option('-y', '--yes', is_flag=True,
-        help="Confirm all steps without prompting user."
+        help=dedent("""[Deprecated: this is now default behaviour. See '-a' to
+        disable] Confirm all steps without prompting user.""")
+    ),
+    click.option('-a', '--ask', is_flag=True,
+        help=dedent("""Ask for confirmation on each step while allowing you to
+        modify all code blocks and variables."""),
     ),
 ]
 
@@ -103,6 +108,7 @@ def cli(ctx, **kwargs):
 @click.argument('input', type=click.File('r'))
 def run(**kwargs):
     "Run code from markdown file."
+    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(clr.yellow, clr.end))
     try:
         commander = parsers.parse_doc(**kwargs)
     except rundoc.BadEnv as e:
@@ -125,6 +131,7 @@ def run(**kwargs):
 @click.argument('input', type=click.File('r'))
 def replay(**kwargs):
     "Run code from the output of 'run' command."
+    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(clr.yellow, clr.end))
     try:
         commander = parsers.parse_output(**kwargs)
     except Exception as e:
