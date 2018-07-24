@@ -182,7 +182,7 @@ class DocCommander(object):
             self.output = output
         if inherit_env:
             self.env.inherit_existing_env()
-        if ask:
+        if ask>=1:
             self.env.prompt()
             self.secrets.prompt()
         else:
@@ -195,16 +195,18 @@ class DocCommander(object):
         self.secrets.load()
         self.running = True
         self.step = step
+        ask_for_prompt_once = False
         while self.step in range(step, len(self.doc_blocks)+1):
             tags = '[{}] '.format(self.doc_block.interpreter)
             tags += ' '.join(self.doc_block.tags.split('#')[1:])
             prompt_text = "\n{}=== Step {} {}{}".format(
                 clr.bold, self.step, tags, clr.end)
             print(prompt_text)
-            if not ask:
+            if ask<3 and not ask_for_prompt_once:
                 print(self.doc_block)
                 sleep(pause)
-            self.doc_block.run(prompt = ask) # run in blocking manner
+            self.doc_block.run(prompt = ask>=3 or ask_for_prompt_once)
+            ask_for_prompt_once = False
             if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
                     clr.green, self.step, clr.end))
@@ -214,11 +216,12 @@ class DocCommander(object):
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                 clr.red, self.step, self.doc_block.last_run['retcode'], clr.end))
-            if ask:
+            if ask>=2:
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(clr.red, clr.bold, self.step, clr.end))
                 input()
+                ask_for_prompt_once = True
                 continue
             if len(self.doc_block.runs) > retry:
                 self.write_output()

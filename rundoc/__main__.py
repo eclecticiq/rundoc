@@ -43,9 +43,12 @@ _run_control_options = [
         help=dedent("""[Deprecated: this is now default behaviour. See '-a' to
         disable] Confirm all steps without prompting user.""")
     ),
-    click.option('-a', '--ask', is_flag=True,
-        help=dedent("""Ask for confirmation on each step while allowing you to
-        modify all code blocks and variables."""),
+    click.option('-a', '--ask', count=True,
+        help=dedent("""Let rundoc ask you for input on variables and/or code.
+        No option: ask for missing vars.
+        -a: ask for all vars.
+        -aa: ask for all vars and modify code on failure.
+        -aaa: ask for all vars and code."""),
     ),
 ]
 
