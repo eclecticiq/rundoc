@@ -13,6 +13,7 @@ import grp
 import logging
 import os
 import pwd
+import re
 import select
 import subprocess
 import sys
@@ -30,7 +31,16 @@ def block_action(f):
     block_actions.setdefault(
         f.__name__.replace("_", "-").strip('-'), f)
 
-def __write_file_action(args, contents, mode='a'):
+def fill_env_placeholders(s):
+    "Replace %:VARIABLE:% with value of VARIABLE in os.environ."
+    variables = re.findall("(%:[A-Za-z_][A-Za-z0-9_]*:%)", s)
+    variables = list(set(map(lambda x: x[2:-2], variables)))
+    res = s
+    for variable in variables:
+        res = res.replace("%:"+variable+":%", os.environ.get(variable) or "")
+    return res
+
+def __write_file_action(args, contents, mode='a', fill=False):
     "Helper function used by 'create-file' and 'append-file' actions."
     filename    = os.path.expanduser(args.get(0))
     permissions = args.get(1)
@@ -54,20 +64,40 @@ def __write_file_action(args, contents, mode='a'):
     else:
         permissions = 0o644
     with open(filename, mode) as fh:
-        fh.write(contents)
+        fh.write(fill_env_placeholders(contents) if fill else contents)
     os.chmod(filename, permissions)
     os.chown(filename, uid, gid)
     return 0
 
 @block_action
 def __create_file(args, contents):
-    "create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]"
+    """create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Create file on PATH/NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
+    fill with contents of a code block.
+    """
     return __write_file_action(args, contents, 'w+')
 
 @block_action
 def __append_file(args, contents):
-    "append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]"
+    """append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Create file on PATH/NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
+    append with contents of a code block.
+    """
     return __write_file_action(args, contents, 'a+')
+
+@block_action
+def __r_create_file(args, contents):
+    """r-create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Same as 'create-file' but also replace %:VAR:% placeholders with env vars.
+    """
+    return __write_file_action(args, contents, 'w+', True)
+
+@block_action
+def __r_append_file(args, contents):
+    """r-append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Same as 'append-file' but also replace %:VAR:% placeholders with env vars.
+    """
+    return __write_file_action(args, contents, 'a+', True)
 
 def get_block_action(tag):
     "Return an action function based on code block tag."

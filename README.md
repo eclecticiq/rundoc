@@ -208,6 +208,20 @@ You can also specify octal file permissions, owner username and owner group in t
 
 Setting owner and group makes sense only if you run rundoc as root/sudo, otherwise you will probably not have permissions to change file owner.
 
+##### r-create-file
+
+Same as `create-file` but will also replace variable placeholders such as `%:JAVA_HOME:%` with values from system environment or environment variables in documentation:
+
+    ```env#production
+    JAVA_HOME=/opt/jdk
+    ```
+    
+    ```r-create-file:/etc/profile.d/java.sh#production
+    JAVA_HOME=%:JAVA_HOME:%
+    ```
+
+The above would create a file `/etc/profile.d/java.sh` containing `JAVA_HOME=/opt/jdk`.
+
 ##### append-file
 
 Action tag to append file with contents from a code block.  
@@ -216,6 +230,11 @@ Syntax: `append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USER[:GROUP]]]`. Example:
     ```append-file:~/Documents/test.cfg:640:nginx:www-data#production#main
     ssl = false
     ```
+
+##### r-append-file
+
+Same as `append-file` but will also replace variable placeholders like `r-create-file` does.  
+Note that only incoming lines are being searched for placeholders and replaced. Existing lines in files are not affected.
 
 #### Force variable collection
 
