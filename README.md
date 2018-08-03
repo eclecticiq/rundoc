@@ -52,34 +52,46 @@ Execute code blocks in *input.md* file:
 rundoc run input.md
 ```
 
+Rundoc will execute all fenced code blocks that contain highlight tag.
+
+Get a prompt 
+
 - You will be prompted before executing each code block with ability to modify the input.
 - When done reviewing/modifying the code block, press *Return* to execute it and move to the next one.
 - Program will exit when last code block is finished executing or when you press **ctrl+c**.
 
-#### Skip prompts
+#### Get prompts
 
-You can use `-y` option to skip prompts and execute all code blocks without user interaction:
+Since version `0.3.0`, rundoc will just run everything by default, prompting you only for missing variables at the beginning. you can use single or multiple `-a` options to enable more prompts:
+
+- `-a` - Ask (prompt) for all variables.
+- `-aa` - Also ask to modify code block on failure and start over at that step.
+- `-aaa` - Also prompt with each code block before executing it.
 
 ```bash
-rundoc run -y input.md
+rundoc run -aaa input.md
 ```
 
-If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the puase. This works only in conjunction with `-y`:
+The above will show each code block and allow you to modify it and press <RETURN> to run it.
+
+#### Pause
+
+If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the puase. (This option does nothing in conjunction with `-aaa`):
 
 ```bash
-rundoc run -y -p 2 input.md
+rundoc run -p 2 input.md
 ```
 
 Some step fails first couple of times but it's normal? That may happen and you would just want to retry that step a couple of times. To do so use `-r` or `--retry` option followed by max number of retries and rundoc will run the same step again until it succeeds or reaches max retries in which case it will exit:
 
 ```bash
-rundoc run -y -r 10 input.md
+rundoc run -r 10 input.md
 ```
 
 But you don't want it to retry right away, correct? You can specify a delay between each try with `-P` (capital P) or `--retry-pause` option followed by number of seconds:
 
 ```bash
-rundoc run -y -r 10 -P 2 input.md
+rundoc run -r 10 -P 2 input.md
 ```
 
 #### Start from specific step
@@ -111,7 +123,7 @@ Output can be saved as a json file containing these fields:
 To save output use `-o` or `--output` option when running rundoc:
 
 ```bash
-rundoc run -y input.md -o output.json
+rundoc run input.md -o output.json
 ```
 
 #### Tags
@@ -153,9 +165,8 @@ Define required environment variables anywhere in the documentaion with a specia
     ```
 
 - As in example above, define variables one on each line.
-- When you run the docs you will be prompted for those.
-- Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your system environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value.
-- If you used `-y` option, you will be prompted only for variables that have empty values and are not exported in your current system environment.
+- When you run the docs with `-a` option, you will be prompted for all of those.
+- Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your system environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value and will not prompt you for it if `-a` option was not used.
 - All variables will be passed to env for every code block that's being executed.
 - If you use rundoc with tag option `-t`, environment blocks will be filtered in the same way as code blocks.
 
@@ -169,6 +180,42 @@ You can define required credentials or other secrets anywhere in the documentaio
     ```
 
 Secrets behave just as `env` blocks with one single difference: they are never saved in the output file and are **expected to be empty in markdown file** so that user must provide them during execution. If you want to use rundoc as part of automation and can't input secrets by hand, you can always export them beforehand and use `-i` option (see next section).
+
+#### Action tags
+
+Action tags are special tags that are used as a first tag instead of interpreter. Code blocks with these tags are not going to be executed, but will be used to perform specific actions, like creating a file.
+
+##### create-file
+
+Action tag to create a file with contents from a code block.  
+Syntax: `create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USER[:GROUP]]]`. Example:
+
+    ```create-file:~/Documents/test.cfg#production#main
+    # Test configuration file
+    active = true
+    port = 12345
+    ```
+
+The above will create a file `create-file:~/Documents/test.cfg`. Tags that follow after `#` (e.g. `production`) are normal selection tags.
+
+You can also specify octal file permissions, owner username and owner group in that order (separated by `:`):
+
+    ```create-file:~/Documents/test.cfg:640:nginx:www-data#production#main
+    # Test configuration file
+    active = true
+    port = 12345
+    ```
+
+Setting owner and group makes sense only if you run rundoc as root/sudo, otherwise you will probably not have permissions to change file owner.
+
+##### append-file
+
+Action tag to append file with contents from a code block.  
+Syntax: `append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USER[:GROUP]]]`. Example:
+
+    ```append-file:~/Documents/test.cfg:640:nginx:www-data#production#main
+    ssl = false
+    ```
 
 #### Force variable collection
 
@@ -190,10 +237,10 @@ rundoc replay output.json
 
 The above command will just turn last runs of each code block into a new code block and run them. It will ignore all run tries that did not succeed at first. Last run may have original command or user modified one and replay does not care about that, it just runs the last command it finds in each code block.
 
-You can still use `-y`, `-p`, `-s`, `-o`, `-r`, and `-P` options with `replay` command:
+You can still use `-aaa`, `-p`, `-s`, `-o`, `-r`, and `-P` options with `replay` command:
 
 ```bash
-rundoc replay -s 2 -p 1 -r 20 -P 5 output.json -o replay_output.json -y
+rundoc replay -s 2 -p 1 -r 20 -P 5 output.json -o replay_output.json
 ```
 
 Tips and tricks
@@ -231,7 +278,7 @@ Similar projects
 List of similar projects that I found:
 
 - [codedown](https://github.com/earldouglas/codedown)
-- [runDOC](https://github.com/schneems/rundoc)
+- [runDOC](https://github.com/schneems/rundoc) (I was not aware of this one when I named my project, honest!)
 
 If you bump into more, let me know.
 
