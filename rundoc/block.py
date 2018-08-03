@@ -1,6 +1,7 @@
 """
 Contains class representation of executable code block.
 """
+from collections import OrderedDict
 from prompt_toolkit import prompt
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
@@ -8,12 +9,75 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
 from rundoc import BadEnv, CodeFailed, BadInterpreter
+import grp
 import logging
 import os
+import pwd
 import select
 import subprocess
 import sys
 import time
+
+block_actions = {}
+def block_action(f):
+    """Decorator: Add function as action item in block_actions.
+
+    Function needs to accept exactly 2 arguments:
+        args      - List of arguments which is a ':' split of a tag without the
+                    first element. First element is used as name of action.
+        contents  - Data from the code block.
+    """
+    block_actions.setdefault(
+        f.__name__.replace("_", "-").strip('-'), f)
+
+def __write_file_action(args, contents, mode='a'):
+    "Helper function used by 'create-file' and 'append-file' actions."
+    filename    = os.path.expanduser(args.get(0))
+    permissions = args.get(1)
+    user        = args.get(2)
+    group       = args.get(3)
+    uid = None
+    gid = None
+    if user:
+        uid = pwd.getpwnam(user).pw_uid
+    else:
+        uid = os.geteuid()
+    if group:
+        gid = grp.getgrnam(group).gr_gid
+    else:
+        if user:
+            gid = pwd.getpwuid(uid).pw_gid
+        else:
+            gid = os.getegid()
+    if permissions:
+        permissions = int(permissions, 8)
+    else:
+        permissions = 0o644
+    with open(filename, mode) as fh:
+        fh.write(contents)
+    os.chmod(filename, permissions)
+    os.chown(filename, uid, gid)
+    return 0
+
+@block_action
+def __create_file(args, contents):
+    "create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]"
+    return __write_file_action(args, contents, 'w+')
+
+@block_action
+def __append_file(args, contents):
+    "append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]"
+    return __write_file_action(args, contents, 'a+')
+
+def get_block_action(tag):
+    "Return an action function based on code block tag."
+    parts_list = list(filter(bool, tag.split(':')))
+    action_name = parts_list.pop(0)
+    if action_name not in block_actions:
+        return None
+    action_args = dict([i, parts_list[i]] for i in range(0, len(parts_list)))
+    return lambda contents: block_actions[action_name](action_args, contents)
+
 
 class DocBlock(object):
     """Single multi-line code block executed as a script.
@@ -47,9 +111,11 @@ class DocBlock(object):
                         #       'time_start': None,
                         #       'time_stop': None
                         #   }
+        self.is_action = interpreter.split(':')[0] in block_actions
         interpreter_exists = subprocess.call(
-            ['bash', '-c', 'command -v {} 2>&1>/dev/null'.format(interpreter)])
-        if interpreter_exists != 0:
+                ['bash','-c','command -v {} 2>&1>/dev/null'.format(interpreter)]
+            ) == 0
+        if not self.is_action and not interpreter_exists:
             raise BadInterpreter("Bad interpreter: '{}'".format(interpreter))
 
     @property
@@ -60,12 +126,19 @@ class DocBlock(object):
             return None
 
     def get_lexer_class(self):
-        lexer_class = None
         try:
             # try because lexer may not exist for current interpreter
             return get_lexer_by_name(self.interpreter).__class__
         except:
-            # no lexer, return plain text
+            # no lexer
+            return None
+
+    def get_lexer(self):
+        try:
+            # try because lexer may not exist for current interpreter
+            return PygmentsLexer(self.get_lexer_class())
+        except:
+            # no lexer
             return None
 
     def __str__(self):
@@ -95,8 +168,8 @@ class DocBlock(object):
         self.last_run['user_code'] = prompt(
             prompt_text,
             default = self.code,
-            lexer = PygmentsLexer(self.get_lexer_class()),
-            style = style_from_pygments_cls(self.HighlightStyle)
+            lexer = self.get_lexer(),
+            style = style_from_pygments_cls(self.HighlightStyle),
             )
 
     def print_output(self, final=False):
@@ -106,7 +179,7 @@ class DocBlock(object):
             final (bool): Used to collect final bytes after the process exists.
         """
         encoding = sys.stdout.encoding
-        if final:
+        if final and self.process: # ask for process because might be an action
             line = self.process.stderr.read().decode(encoding)
             self.last_run['output'] += line
             sys.stderr.write(line)
@@ -149,12 +222,24 @@ class DocBlock(object):
                 self.last_run['user_code'] = self.code
             code = self.last_run['user_code'].strip()
             self.last_run['time_start'] = time.time()
-            self.process = subprocess.Popen(
-                [self.interpreter, '-c', code],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                shell=False,
-                )
+            if self.is_action:
+                try:
+                    action = get_block_action(self.interpreter)
+                    self.last_run['retcode'] = action(self.code)
+                except Exception as e:
+                    self.last_run['output'] = str(e)
+                    print(str(e))
+                    self.last_run['retcode'] = 1
+                self.last_run['time_stop'] = time.time()
+                self.process = None
+                return
+            else:
+                self.process = subprocess.Popen(
+                    [self.interpreter, '-c', code],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                    )
         while self.is_running():
             self.print_output()
         self.print_output(final=True)

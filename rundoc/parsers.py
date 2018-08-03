@@ -7,6 +7,7 @@ from rundoc.block import DocBlock
 from rundoc.commander import DocCommander
 import json
 import markdown
+import markdown_rundoc.rundoc_code
 import operator
 import re
 
@@ -90,7 +91,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     mkd_data = input.read()
     html_data = markdown.markdown(
         mkd_data,
-        extensions=['toc', 'tables', 'footnotes', 'fenced_code']
+        extensions = [ 'markdown_rundoc.rundoc_code' ]
         )
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
@@ -157,7 +158,7 @@ def get_tags(input, tag_separator="#"):
     mkd_data = input.read()
     html_data = markdown.markdown(
         mkd_data,
-        extensions=['toc', 'tables', 'footnotes', 'fenced_code']
+        extensions = [ 'markdown_rundoc.rundoc_code' ]
         )
     soup = BeautifulSoup(html_data, 'html.parser')
     match = re.compile("^.+$")

@@ -47,6 +47,7 @@ setup(
         'beautifulsoup4>=4.4.1,<5.0',
         'click>=6.7,<7.0',
         'markdown>=2.6.9,<3.0',
+        'markdown_rundoc>=0.1.0,<0.2.0',
         'prompt_toolkit>=2.0,<3.0',
         'pygments>=2.2.0,<3.0',
     ],
