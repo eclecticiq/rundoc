@@ -255,7 +255,7 @@ class DocBlock(object):
             if self.is_action:
                 try:
                     action = get_block_action(self.interpreter)
-                    self.last_run['retcode'] = action(self.code)
+                    self.last_run['retcode'] = action(code)
                 except Exception as e:
                     self.last_run['output'] = str(e)
                     print(str(e))
