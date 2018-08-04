@@ -64,7 +64,7 @@ def __write_file_action(args, contents, mode='a', fill=False):
     else:
         permissions = 0o644
     with open(filename, mode) as fh:
-        fh.write(fill_env_placeholders(contents) if fill else contents)
+        fh.write((fill_env_placeholders(contents) if fill else contents)+"\n")
     os.chmod(filename, permissions)
     os.chown(filename, uid, gid)
     return 0
