@@ -12,7 +12,7 @@ import operator
 import re
 
 def generate_match_class(tags="", must_have_tags="", must_not_have_tags="",
-    tag_separator="#", is_env=False, is_secret=False):
+    is_env=False, is_secret=False):
     """Generate match_class(class_name) function.
 
     Function match_class(class_name) is used to filter html classes that
@@ -37,39 +37,39 @@ def generate_match_class(tags="", must_have_tags="", must_not_have_tags="",
         if is_env and is_secret:
             raise Exception("Block can't be both env and secret.")
         only_env = re.compile("^env(iron(ment)?)?($|{}).*$".format(
-            re.escape(tag_separator)))
+            re.escape('#')))
         if is_env and not only_env.match(class_name):
             return False
         only_secrets = re.compile("^secrets?($|{}).*$".format(
-            re.escape(tag_separator)))
+            re.escape('#')))
         if is_secret and not only_secrets.match(class_name):
             return False
         code_block = re.compile("^(?!(env(iron(ment)?)?|secrets?)).*$")
         if not (is_env or is_secret) and not code_block.match(class_name):
             return False
         match_tags = re.compile("^.*(^|{s})({tags})({s}|$).*$".format(
-            tags = '|'.join(list(filter(bool, tags.split(tag_separator)))),
-            s = re.escape(tag_separator)))
+            tags = '|'.join(list(filter(bool, tags.split('#')))),
+            s = re.escape('#')))
         if tags and not match_tags.match(class_name):
             return False
         match_all_tags = re.compile(
             "^{}.*$".format(''.join('(?=.*(^|{s}){tag}($|{s}))'.format(
-                s = re.escape(tag_separator),
+                s = re.escape('#'),
                 tag = tag) for tag in list(
-                    filter(bool, must_have_tags.split(tag_separator))))))
+                    filter(bool, must_have_tags.split('#'))))))
         if must_have_tags and not match_all_tags.match(class_name):
             return False
         not_match_tags = re.compile("^(?!.*(^|{s})({tags})($|{s})).*$".format(
             tags = '|'.join(list(filter(bool,
-                must_not_have_tags.split(tag_separator)))),
-            s = re.escape(tag_separator)))
+                must_not_have_tags.split('#')))),
+            s = re.escape('#')))
         if must_not_have_tags and not not_match_tags.match(class_name):
             return False
         return True
     return match_class
 
 def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
-    light=False, tag_separator="#", **kwargs):
+    light=False, **kwargs):
     """Parse code blocks from markdown file and return DocCommander object.
 
     Args:
@@ -82,8 +82,6 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
             to contain non of them.
         light (bool): Will use light backgrond color theme if set to True.
             Defaults to False.
-        tag_separator (str): Allows to use different tag separator. Defaults to
-            hash symbol (#).
 
     Returns:
         DocCommander object.
@@ -96,25 +94,24 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
     # collect all elements with selected tags as classes
-    match = generate_match_class(tags, must_have_tags, must_not_have_tags,
-        tag_separator=tag_separator)
+    match = generate_match_class(tags, must_have_tags, must_not_have_tags)
     code_block_elements = soup.findAll(name='code', attrs={"class":match,})
     for element in code_block_elements:
         class_name = element.get_attribute_list('class')[0]
         if class_name:
-            tags_list = class_name.split(tag_separator)
+            tags_list = class_name.split('#')
             tags_list = list(filter(bool, tags_list)) # remove empty strings
             interpreter = tags_list[0]
             commander.add(element.getText(), interpreter, light, class_name)
     # get env blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
-        is_env=True, tag_separator=tag_separator)
+        is_env=True)
     env_elements = soup.findAll(name='code', attrs={"class":match,})
     env_string = "\n".join([ x.string or '' for x in env_elements ])
     commander.env.import_string(env_string)
     # get secrets blocks
     match = generate_match_class(tags, must_have_tags, must_not_have_tags,
-        is_secret=True, tag_separator=tag_separator)
+        is_secret=True)
     secrets_elements = soup.findAll(name='code', attrs={"class":match,})
     secrets_string = "\n".join([ x.string for x in secrets_elements ])
     commander.secrets.import_string(secrets_string)
@@ -153,7 +150,7 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
         commander.doc_blocks.append(doc_block)
     return commander
 
-def get_tags(input, tag_separator="#"):
+def get_tags(input):
     tag_dict = defaultdict(int)
     mkd_data = input.read()
     html_data = markdown.markdown(
@@ -166,16 +163,16 @@ def get_tags(input, tag_separator="#"):
     for element in code_block_elements:
         class_name = element.get_attribute_list('class')[0]
         if class_name:
-            for tag in class_name.split(tag_separator):
+            for tag in class_name.split('#'):
                 tag_dict[tag] += 1
     sorted_tag_dict = sorted(tag_dict.items(), key=operator.itemgetter(1),
         reverse=True)
     return sorted_tag_dict
 
-def print_blocks(input, tags="", must_have_tags="",
-    must_not_have_tags="", light=False, tag_separator="#", pretty=False):
-    commander = parse_doc(input, tags, must_have_tags,
-        must_not_have_tags, light, tag_separator)
+def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
+    light=False, pretty=False):
+    commander = parse_doc(input, tags, must_have_tags, must_not_have_tags,
+        light)
     if pretty:
         step = 0
         for block in commander.doc_blocks:
@@ -186,4 +183,15 @@ def print_blocks(input, tags="", must_have_tags="",
             print("")
     else:
         print(json.dumps(commander.get_dict(), sort_keys=True, indent=4))
+
+def print_clean_doc(input):
+    mkd_data = input.read()
+    print(
+        re.sub(
+            '(\\n```[^#:]*).*?(\\n.*?```\\n)',
+            '\\1\\2',
+            mkd_data,
+            flags=re.DOTALL
+            )
+        )
 

@@ -179,6 +179,15 @@ def list_blocks(**kwargs):
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)
 
+@cli.command(name='clean-doc')
+@click.argument('input', type=click.File('r'))
+def clean_doc(**kwargs):
+    "Read markdown file, strip any rundoc specific markup and send to stdout."
+    try:
+        parsers.print_clean_doc(**kwargs)
+    except Exception as e:
+        logger.error('Failed to parse file: {}'.format(e))
+        sys.exit(1)
 
 if __name__ == '__main__':
     cli()
