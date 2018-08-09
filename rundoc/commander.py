@@ -182,6 +182,7 @@ class DocCommander(object):
             self.output = output
         if inherit_env:
             self.env.inherit_existing_env()
+            self.secrets.inherit_existing_env()
         if ask>=1:
             self.env.prompt()
             self.secrets.prompt()
