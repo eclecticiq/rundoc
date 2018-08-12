@@ -29,7 +29,7 @@ Installation
 Usage
 -------------------------
 
-Rundoc collects fenced code blocks from input markdown file and executes them in same order as they appear in the file.
+Rundoc collects fenced code blocks from input markdown file and executes them in same order as they appear in the file. Interpreter is specified by the highlight tag of the code block.
 
 Example of fenced code block in markdown file:
 
@@ -40,7 +40,7 @@ Example of fenced code block in markdown file:
     done
     ```
 
-Interpreter will be automatically selected using the highlight tag of the code block (in above example `bash`). If highlight tag is not specified, rundoc will ignore that code block.
+Interpreter will be automatically selected using the highlight tag of the code block (in above example `bash`). Code is piped to the interpreter through stdin. If highlight tag is not specified, rundoc will ignore that code block.
 
 Rundoc can save json file after execution, which contains all code blocks and their outputs. You can also replay all the actions by running this output file.
 
@@ -184,6 +184,8 @@ Secrets behave just as `env` blocks with one single difference: they are never s
 #### Action tags
 
 Action tags are special tags that are used as a first tag instead of interpreter. Code blocks with these tags are not going to be executed, but will be used to perform specific actions, like creating a file.
+
+To get a list of available action tags and their usage in current version run: `rundoc action-tags`. New action tags will be included often in new versions of rundoc.
 
 ##### create-file
 

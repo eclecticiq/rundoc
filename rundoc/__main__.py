@@ -166,6 +166,16 @@ def list_tags(**kwargs):
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)
 
+@cli.command(name='action-tags')
+def special_tags(**kwargs):
+    "Show available action tags and their use in markdown."
+    block_actions = rundoc.block.block_actions
+    action_tags_info = ""
+    for key in block_actions.keys():
+        action_tags_info += "\n" + block_actions[key].__doc__
+    print(action_tags_info)
+    sys.exit(0)
+
 @cli.command(name='list-blocks')
 @add_options(_tag_options)
 @add_options(_output_style_options)

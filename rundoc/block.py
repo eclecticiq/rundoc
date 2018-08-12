@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 
-block_actions = {}
+block_actions = OrderedDict()
 def block_action(f):
     """Decorator: Add function as action item in block_actions.
 
@@ -71,33 +71,72 @@ def __write_file_action(args, contents, mode='a', fill=False):
 
 @block_action
 def __create_file(args, contents):
-    """create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
-    Create file on PATH/NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
+    """create-file:NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Create file on path NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
     fill with contents of a code block.
+    Example:
+        ```create-file:~/.config/test.cfg:640#tag1#tag2
+        example = True
+        ```
     """
     return __write_file_action(args, contents, 'w+')
 
 @block_action
-def __append_file(args, contents):
-    """append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
-    Create file on PATH/NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
-    append with contents of a code block.
-    """
-    return __write_file_action(args, contents, 'a+')
-
-@block_action
 def __r_create_file(args, contents):
-    """r-create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    """r-create-file:NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Same as 'create-file' but also replace %:VAR:% placeholders with env vars.
+    Example:
+        ```env
+        example_value=True
+        ```
+        ```r-create-file:~/.config/test.cfg:640#tag1#tag2
+        example = %:example_value:%
+        ```
     """
     return __write_file_action(args, contents, 'w+', True)
+
+@block_action
+def __append_file(args, contents):
+    """append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
+    Edit file on path NAME, set OCTAL_PERMISSIONS and chown to USERNAME:GROUP
+    and paste contents of a code block at the end of the file.
+    Example:
+        ```append-file:~/.config/test.cfg:640#tag1#tag2
+        port = 9200
+        ```
+    """
+    return __write_file_action(args, contents, 'a+')
 
 @block_action
 def __r_append_file(args, contents):
     """r-append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Same as 'append-file' but also replace %:VAR:% placeholders with env vars.
+    Note that only code block contents will be replaced. Existing part of file
+    will not be changed.
+    Example:
+        ```env
+        port_number=9200
+        ```
+        ```r-append-file:~/.config/test.cfg:640#tag1#tag2
+        port = %:port_number:%
+        ```
     """
     return __write_file_action(args, contents, 'a+', True)
+
+@block_action
+def __usage(args, contents):
+    """usage
+    Print code block contents and exit. Used to print usage help if no tags are
+    provided.
+    Example:
+        ```usage
+        To setup the product run:
+            rundoc run README.md -t setup
+        To upgrade the product run:
+            rundoc run README.md -t upgrade
+        ```
+    """
+    sys.exit(0)
 
 def get_block_action(tag):
     "Return an action function based on code block tag."
@@ -107,7 +146,6 @@ def get_block_action(tag):
         return None
     action_args = dict([i, parts_list[i]] for i in range(0, len(parts_list)))
     return lambda contents: block_actions[action_name](action_args, contents)
-
 
 class DocBlock(object):
     """Single multi-line code block executed as a script.
@@ -265,11 +303,15 @@ class DocBlock(object):
                 return
             else:
                 self.process = subprocess.Popen(
-                    [self.interpreter, '-c', code],
+                    [self.interpreter],
+                    stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     shell=False,
                     )
+                self.process.stdin.write(code.encode())
+                self.process.stdin.flush()
+                self.process.stdin.close()
         while self.is_running():
             self.print_output()
         self.print_output(final=True)
