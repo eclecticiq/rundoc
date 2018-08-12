@@ -187,57 +187,6 @@ Action tags are special tags that are used as a first tag instead of interpreter
 
 To get a list of available action tags and their usage in current version run: `rundoc action-tags`. New action tags will be included often in new versions of rundoc.
 
-##### create-file
-
-Action tag to create a file with contents from a code block.  
-Syntax: `create-file:PATH/NAME[:OCTAL_PERMISSIONS[:USER[:GROUP]]]`. Example:
-
-    ```create-file:~/Documents/test.cfg#production#main
-    # Test configuration file
-    active = true
-    port = 12345
-    ```
-
-The above will create a file `create-file:~/Documents/test.cfg`. Tags that follow after `#` (e.g. `production`) are normal selection tags.
-
-You can also specify octal file permissions, owner username and owner group in that order (separated by `:`):
-
-    ```create-file:~/Documents/test.cfg:640:nginx:www-data#production#main
-    # Test configuration file
-    active = true
-    port = 12345
-    ```
-
-Setting owner and group makes sense only if you run rundoc as root/sudo, otherwise you will probably not have permissions to change file owner.
-
-##### r-create-file
-
-Same as `create-file` but will also replace variable placeholders such as `%:JAVA_HOME:%` with values from system environment or environment variables in documentation:
-
-    ```env#production
-    JAVA_HOME=/opt/jdk
-    ```
-    
-    ```r-create-file:/etc/profile.d/java.sh#production
-    JAVA_HOME=%:JAVA_HOME:%
-    ```
-
-The above would create a file `/etc/profile.d/java.sh` containing `JAVA_HOME=/opt/jdk`.
-
-##### append-file
-
-Action tag to append file with contents from a code block.  
-Syntax: `append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USER[:GROUP]]]`. Example:
-
-    ```append-file:~/Documents/test.cfg:640:nginx:www-data#production#main
-    ssl = false
-    ```
-
-##### r-append-file
-
-Same as `append-file` but will also replace variable placeholders like `r-create-file` does.  
-Note that only incoming lines are being searched for placeholders and replaced. Existing lines in files are not affected.
-
 #### Force variable collection
 
 You can force rundoc to check if any of the variables defined with `env` tag is already exported in your current system environment and use it's value instead of the one defined in markdown file. To do this use `-i` or `--inherit-env` option when running rundoc. The list of variables that is presented to you when you run rundoc and that will be used in the session will now contain values defined in the system environment.
