@@ -50,6 +50,10 @@ _run_control_options = [
         -aa: ask for all vars and modify code on failure.
         -aaa: ask for all vars and code."""),
     ),
+    click.option('-b', '--breakpoint', type=int, multiple=True,
+        help=dedent("""Step number on which to force prompt for code input. You can
+        use this option multiple times to add multiple breakpoints."""),
+    ),
 ]
 
 _run_specific_options = [

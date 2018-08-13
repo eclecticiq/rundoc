@@ -74,6 +74,10 @@ rundoc run -aaa input.md
 
 The above will show each code block and allow you to modify it and press \<RETURN\> to run it.
 
+#### Breakpoints
+
+You can force the prompt on specific steps using `-b` or `--breakpoint` option followed by a step number. You can use this option multiple times to add multiple breakpoints. When used, rundoc will stop at the selected steps and prompt user to modify code regardless of the `--ask` setting.
+
 #### Pause
 
 If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the puase. (This option does nothing in conjunction with `-aaa`):

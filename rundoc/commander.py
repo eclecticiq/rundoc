@@ -162,13 +162,16 @@ class DocCommander(object):
             print("Output written to: {}".format(self.output.name))
 
     def run(self,
-        step=1, ask=False, inherit_env=False, pause=0, retry=0, retry_pause=1,
-        output=None, **kwargs):
+        step=1, ask=False, breakpoint=[], inherit_env=False, pause=0, retry=0,
+        retry_pause=1, output=None, **kwargs):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
             step (int): Number of step to start with. Steps start at 1.
             ask (bool): Ask user to confirm each step.
+            breakpoint (list): List of integers representing steps that are
+                breakpoints. Rundoc will always prompt user on these steps no
+                matter what value `ask` is set to.
             inherit_env (bool): Override env defaults in docs with exported
                 values from outside env (for those that exist).
             pause (float): A delay in seconds before the start of each step.
@@ -198,15 +201,17 @@ class DocCommander(object):
         self.step = step
         ask_for_prompt_once = False
         while self.step in range(step, len(self.doc_blocks)+1):
+            prompt_this_time = \
+                ask>=3 or ask_for_prompt_once or self.step in breakpoint
             tags = '[{}] '.format(self.doc_block.interpreter)
             tags += ' '.join(self.doc_block.tags.split('#')[1:])
             prompt_text = "\n{}=== Step {} {}{}".format(
                 clr.bold, self.step, tags, clr.end)
             print(prompt_text)
-            if ask<3 and not ask_for_prompt_once:
+            if not prompt_this_time:
                 print(self.doc_block)
                 sleep(pause)
-            self.doc_block.run(prompt = ask>=3 or ask_for_prompt_once)
+            self.doc_block.run(prompt = prompt_this_time)
             ask_for_prompt_once = False
             if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
