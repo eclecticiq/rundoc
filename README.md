@@ -44,6 +44,8 @@ Interpreter will be automatically selected using the highlight tag of the code b
 
 Rundoc can save json file after execution, which contains all code blocks and their outputs. You can also replay all the actions by running this output file.
 
+**<span style="color: red;">WARNING: Each code block is treated as separate step and is run in fresh interpreter session!</span>** Variables that you exported in the code block will **not** be passed to next code block. You can specify global variables in `env` code block (see *[Environment variables](#environment-variables)* below).
+
 ### Run markdown file
 
 Execute code blocks in *input.md* file:
@@ -253,6 +255,7 @@ List of similar projects that I found:
 
 - [codedown](https://github.com/earldouglas/codedown)
 - [runDOC](https://github.com/schneems/rundoc) (I was not aware of this one when I named my project, honest!)
+- [gfm-code-blocks](https://github.com/jonschlinkert/gfm-code-blocks)
 
 If you bump into more, let me know.
 
