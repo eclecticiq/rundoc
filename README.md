@@ -72,7 +72,7 @@ Since version `0.3.0`, rundoc will just run everything by default, prompting you
 rundoc run -aaa input.md
 ```
 
-The above will show each code block and allow you to modify it and press <RETURN> to run it.
+The above will show each code block and allow you to modify it and press \<RETURN\> to run it.
 
 #### Pause
 
