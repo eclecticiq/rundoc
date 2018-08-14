@@ -5,56 +5,64 @@
             "interpreter": "bash",
             "runs": [
                 {
-                    "output": "this is good 1\nthis is good 2\nthis is bad  1\nthis is good 3\nthis is bad  2\nthis is good 4\nthis is bad  3\nthis is good 5\nthis is bad  4\nthis is good 6\nthis is good 7\nthis is bad  5\nthis is bad  6\nthis is bad  7\nthis is bad  8\nthis is good 8\n",
+                    "output": "this is good 1\nthis is good 2\nthis is good 3\nthis is good 4\nthis is good 5\nthis is good 6\nthis is good 7\nthis is good 8\nthis is bad  1\nthis is bad  2\nthis is bad  3\nthis is bad  4\nthis is bad  5\nthis is bad  6\nthis is bad  7\nthis is bad  8\n",
                     "retcode": 0,
-                    "time_start": 1523375350.9045172,
-                    "time_stop": 1523375350.9096785,
+                    "time_start": 1534212714.432899,
+                    "time_stop": 1534212714.4387197,
                     "user_code": "echo \"this is good 1\"\necho \"this is good 2\"\necho \"this is good 3\"\necho \"this is good 4\"\necho \"this is good 5\"\necho \"this is good 6\"\necho \"this is good 7\"\necho \"this is good 8\"\necho \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is bad  3\" 1>&2\necho \"this is bad  4\" 1>&2\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\n"
                 }
             ],
-            "tags": "bash"
+            "tags": [
+                "bash"
+            ]
         },
         {
             "code": "echo \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is bad  3\" 1>&2\necho \"this is bad  4\" 1>&2\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\necho \"this is good 1\"\necho \"this is good 2\"\necho \"this is good 3\"\necho \"this is good 4\"\necho \"this is good 5\"\necho \"this is good 6\"\necho \"this is good 7\"\necho \"this is good 8\"\n",
             "interpreter": "bash",
             "runs": [
                 {
-                    "output": "this is bad  1\nthis is good 1\nthis is bad  2\nthis is good 2\nthis is bad  3\nthis is good 3\nthis is bad  4\nthis is bad  5\nthis is bad  6\nthis is good 4\nthis is bad  7\nthis is bad  8\nthis is good 5\nthis is good 6\nthis is good 7\nthis is good 8\n",
+                    "output": "this is bad  1\nthis is bad  2\nthis is bad  3\nthis is bad  4\nthis is bad  5\nthis is bad  6\nthis is bad  7\nthis is bad  8\nthis is good 1\nthis is good 2\nthis is good 3\nthis is good 4\nthis is good 5\nthis is good 6\nthis is good 7\nthis is good 8\n",
                     "retcode": 0,
-                    "time_start": 1523375350.9157314,
-                    "time_stop": 1523375350.9229105,
+                    "time_start": 1534212714.4466848,
+                    "time_stop": 1534212714.4521785,
                     "user_code": "echo \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is bad  3\" 1>&2\necho \"this is bad  4\" 1>&2\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\necho \"this is good 1\"\necho \"this is good 2\"\necho \"this is good 3\"\necho \"this is good 4\"\necho \"this is good 5\"\necho \"this is good 6\"\necho \"this is good 7\"\necho \"this is good 8\"\n"
                 }
             ],
-            "tags": "bash"
+            "tags": [
+                "bash"
+            ]
         },
         {
             "code": "echo \"this is good 1\"\necho \"this is good 2\"\necho \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is good 3\"\necho \"this is good 4\"\necho \"this is bad  3\" 1>&2\necho \"this is good 5\"\necho \"this is bad  4\" 1>&2\necho \"this is good 6\"\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is good 7\"\necho \"this is good 8\"\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\n",
             "interpreter": "bash",
             "runs": [
                 {
-                    "output": "this is good 1\nthis is good 2\nthis is bad  1\nthis is good 3\nthis is bad  2\nthis is bad  3\nthis is bad  4\nthis is bad  5\nthis is bad  6\nthis is good 4\nthis is bad  7\nthis is bad  8\nthis is good 5\nthis is good 6\nthis is good 7\nthis is good 8\n",
+                    "output": "this is good 1\nthis is good 2\nthis is bad  1\nthis is bad  2\nthis is good 3\nthis is good 4\nthis is bad  3\nthis is good 5\nthis is bad  4\nthis is good 6\nthis is bad  5\nthis is bad  6\nthis is good 7\nthis is good 8\nthis is bad  7\nthis is bad  8\n",
                     "retcode": 0,
-                    "time_start": 1523375350.9288507,
-                    "time_stop": 1523375350.9338715,
+                    "time_start": 1534212714.4620779,
+                    "time_stop": 1534212714.467681,
                     "user_code": "echo \"this is good 1\"\necho \"this is good 2\"\necho \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is good 3\"\necho \"this is good 4\"\necho \"this is bad  3\" 1>&2\necho \"this is good 5\"\necho \"this is bad  4\" 1>&2\necho \"this is good 6\"\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is good 7\"\necho \"this is good 8\"\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\n"
                 }
             ],
-            "tags": "bash"
+            "tags": [
+                "bash"
+            ]
         },
         {
             "code": "echo \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is good 1\"\necho \"this is good 2\"\necho \"this is bad  3\" 1>&2\necho \"this is good 3\"\necho \"this is bad  4\" 1>&2\necho \"this is good 4\"\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is good 5\"\necho \"this is good 6\"\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\necho \"this is good 7\"\necho \"this is good 8\"\n",
             "interpreter": "bash",
             "runs": [
                 {
-                    "output": "this is bad  1\nthis is good 1\nthis is bad  2\nthis is good 2\nthis is bad  3\nthis is good 3\nthis is bad  4\nthis is good 4\nthis is bad  5\nthis is good 5\nthis is bad  6\nthis is bad  7\nthis is good 6\nthis is bad  8\nthis is good 7\nthis is good 8\n",
+                    "output": "this is bad  1\nthis is bad  2\nthis is good 1\nthis is good 2\nthis is bad  3\nthis is good 3\nthis is bad  4\nthis is good 4\nthis is bad  5\nthis is bad  6\nthis is good 5\nthis is good 6\nthis is bad  7\nthis is bad  8\nthis is good 7\nthis is good 8\n",
                     "retcode": 0,
-                    "time_start": 1523375350.9397604,
-                    "time_stop": 1523375350.9448538,
+                    "time_start": 1534212714.4758043,
+                    "time_stop": 1534212714.4812396,
                     "user_code": "echo \"this is bad  1\" 1>&2\necho \"this is bad  2\" 1>&2\necho \"this is good 1\"\necho \"this is good 2\"\necho \"this is bad  3\" 1>&2\necho \"this is good 3\"\necho \"this is bad  4\" 1>&2\necho \"this is good 4\"\necho \"this is bad  5\" 1>&2\necho \"this is bad  6\" 1>&2\necho \"this is good 5\"\necho \"this is good 6\"\necho \"this is bad  7\" 1>&2\necho \"this is bad  8\" 1>&2\necho \"this is good 7\"\necho \"this is good 8\"\n"
                 }
             ],
-            "tags": "bash"
+            "tags": [
+                "bash"
+            ]
         }
     ],
     "env": {}

@@ -11,62 +11,6 @@ import markdown_rundoc.rundoc_code
 import operator
 import re
 
-def generate_match_class(tags="", must_have_tags="", must_not_have_tags="",
-    is_env=False, is_secret=False):
-    """Generate match_class(class_name) function.
-
-    Function match_class(class_name) is used to filter html classes that
-    comply with tagging rules provided. Lists of tags are hash (#) separated
-    strings. Example: "tag1#tag2#tag3".
-
-    Args:
-        tags (str): At least one tag must exist in class name.
-        must_have_tags (str): All tags must exist in class name. Order is not
-            important.
-        must_not_have_tags (str): None of these tags may be found in the class
-            name.
-        is_env (bool): If set to True then match only class names that begin
-            with environment tag, otherwise don't match them.
-        is_secret (bool): If set to True then match only class names that begin
-            with secret tag, otherwise don't match them.
-    Returns:
-        Function match_class(class_name).
-    """
-    def match_class(class_name):
-        if not class_name: class_name = "" # avoid working with None
-        if is_env and is_secret:
-            raise Exception("Block can't be both env and secret.")
-        only_env = re.compile("^env(iron(ment)?)?($|{}).*$".format(
-            re.escape('#')))
-        if is_env and not only_env.match(class_name):
-            return False
-        only_secrets = re.compile("^secrets?($|{}).*$".format(
-            re.escape('#')))
-        if is_secret and not only_secrets.match(class_name):
-            return False
-        code_block = re.compile("^(?!(env(iron(ment)?)?|secrets?)).*$")
-        if not (is_env or is_secret) and not code_block.match(class_name):
-            return False
-        match_tags = re.compile("^.*(^|{s})({tags})({s}|$).*$".format(
-            tags = '|'.join(list(filter(bool, tags.split('#')))),
-            s = re.escape('#')))
-        if tags and not match_tags.match(class_name):
-            return False
-        match_all_tags = re.compile(
-            "^{}.*$".format(''.join('(?=.*(^|{s}){tag}($|{s}))'.format(
-                s = re.escape('#'),
-                tag = tag) for tag in list(
-                    filter(bool, must_have_tags.split('#'))))))
-        if must_have_tags and not match_all_tags.match(class_name):
-            return False
-        not_match_tags = re.compile("^(?!.*(^|{s})({tags})($|{s})).*$".format(
-            tags = '|'.join(list(filter(bool,
-                must_not_have_tags.split('#')))),
-            s = re.escape('#')))
-        if must_not_have_tags and not not_match_tags.match(class_name):
-            return False
-        return True
-    return match_class
 
 def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     light=False, **kwargs):
@@ -89,30 +33,56 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     mkd_data = input.read()
     html_data = markdown.markdown(
         mkd_data,
-        extensions = [ 'markdown_rundoc.rundoc_code' ]
+        extensions = [ 
+            'markdown_rundoc.rundoc_code(tags={},must_have_tags={}, must_not_have_tags={})'.format(
+                tags, must_have_tags, must_not_have_tags,
+                )
+            ]
         )
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
-    # collect all elements with selected tags as classes
-    match = generate_match_class(tags, must_have_tags, must_not_have_tags)
-    code_block_elements = soup.findAll(name='code', attrs={"class":match,})
+
+    # find blocks
+    def is_runnable_block(tag):
+        if tag.name != 'code':
+            return False
+        if 'rundoc_selected' not in tag.get('class', {}):
+            return False
+        return not bool({
+            "env",
+            "environ",
+            "environment",
+            "secret",
+            "secrets",
+            }.intersection(tag.get('class', {})))
+    code_block_elements = soup.findAll(is_runnable_block)
     for element in code_block_elements:
-        class_name = element.get_attribute_list('class')[0]
-        if class_name:
-            tags_list = class_name.split('#')
-            tags_list = list(filter(bool, tags_list)) # remove empty strings
-            interpreter = tags_list[0]
-            commander.add(element.getText(), interpreter, light, class_name)
-    # get env blocks
-    match = generate_match_class(tags, must_have_tags, must_not_have_tags,
-        is_env=True)
-    env_elements = soup.findAll(name='code', attrs={"class":match,})
+        tags_list = element.get_attribute_list('class')
+        tags_list = list(filter(bool, tags_list))
+        if tags_list:
+            tags_list.remove('rundoc_selected')
+            commander.add(element.getText(), tags_list, light)
+
+    # find environments
+    def is_environment(tag):
+        if tag.name != 'code':
+            return False
+        if 'rundoc_selected' not in tag.get('class', {}):
+            return False
+        return bool({'env','environ','environment'}.intersection(
+            tag.get('class', {})))
+    env_elements = soup.findAll(is_environment)
     env_string = "\n".join([ x.string or '' for x in env_elements ])
     commander.env.import_string(env_string)
-    # get secrets blocks
-    match = generate_match_class(tags, must_have_tags, must_not_have_tags,
-        is_secret=True)
-    secrets_elements = soup.findAll(name='code', attrs={"class":match,})
+
+    # find secrets
+    def is_secret(tag):
+        if tag.name != 'code':
+            return False
+        if 'rundoc_selected' not in tag.get('class', {}):
+            return False
+        return bool({'secret','secrets'}.intersection(tag.get('class', {})))
+    secrets_elements = soup.findAll(is_secret)
     secrets_string = "\n".join([ x.string for x in secrets_elements ])
     commander.secrets.import_string(secrets_string)
     return commander
@@ -143,9 +113,8 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
     for d in data['code_blocks']:
         doc_block = DocBlock(
             code=d['runs'][-1]['user_code'],
-            interpreter=d['interpreter'],
+            tags=d['tags'],
             light=light,
-            tags=d['tags']
             )
         commander.doc_blocks.append(doc_block)
     return commander
@@ -177,7 +146,7 @@ def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
         step = 0
         for block in commander.doc_blocks:
             step += 1
-            print("{}. [{}] {}".format(step, block.interpreter, block.tags))
+            print("{}. [{}] {}".format(step, block.interpreter, '#'.join(block.tags)))
             print("=================")
             print(block)
             print("")

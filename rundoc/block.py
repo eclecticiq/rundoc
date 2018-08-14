@@ -160,13 +160,14 @@ class DocBlock(object):
             'output': Full output of executed code block.
             'retcode': exit code of the code block executed
     """
-    def __init__(self, code, interpreter, light=False, tags=""):
+    def __init__(self, code, tags, light=False):
         if light:
             from pygments.styles.manni import ManniStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
         else:
             from pygments.styles.native import NativeStyle as HighlightStyle
             self.HighlightStyle = HighlightStyle
+        interpreter = tags[0]
         self.interpreter = interpreter
         self.code = code
         self.tags = tags
@@ -248,27 +249,14 @@ class DocBlock(object):
         """
         encoding = sys.stdout.encoding
         if final and self.process: # ask for process because might be an action
-            line = self.process.stderr.read().decode(encoding)
-            self.last_run['output'] += line
-            sys.stderr.write(line)
             line = self.process.stdout.read().decode(encoding)
             self.last_run['output'] += line
             sys.stdout.write(line)
         else:
             assert self.process
-            reads = [self.process.stdout.fileno(), self.process.stderr.fileno()]
-            ret = select.select(reads, [], [])
-            line = ""
-            for fd in ret[0]:
-                if fd == self.process.stderr.fileno():
-                    line = self.process.stderr.readline().decode(encoding)
-                    self.last_run['output'] += line
-                    sys.stderr.write(line)
-                if fd == self.process.stdout.fileno():
-                    line = self.process.stdout.readline().decode(encoding)
-                    self.last_run['output'] += line
-                    sys.stdout.write(line)
-            return len(line) > 0
+            line = self.process.stdout.readline().decode(encoding)
+            self.last_run['output'] += line
+            sys.stdout.write(line)
 
     def is_running(self):
         return self.process and self.process.poll() is None
@@ -306,7 +294,7 @@ class DocBlock(object):
                     [self.interpreter],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                     shell=False,
                     )
                 self.process.stdin.write(code.encode())

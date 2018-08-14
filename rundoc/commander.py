@@ -124,16 +124,13 @@ class DocCommander(object):
             'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
         }
 
-    def add(self, code, interpreter, light=False, tags=""):
-        if not interpreter:
-            raise Exception("No interpreter set.")
+    def add(self, code, tags, light=False):
         try:
             self.doc_blocks.append(
                 DocBlock(
                     code=code,
-                    interpreter=interpreter,
-                    light=light,
                     tags=tags,
+                    light=light,
                     )
                 )
         except RundocException as re:
@@ -204,7 +201,7 @@ class DocCommander(object):
             prompt_this_time = \
                 ask>=3 or ask_for_prompt_once or self.step in breakpoint
             tags = '[{}] '.format(self.doc_block.interpreter)
-            tags += ' '.join(self.doc_block.tags.split('#')[1:])
+            tags += ' '.join(self.doc_block.tags[1:])
             prompt_text = "\n{}=== Step {} {}{}".format(
                 clr.bold, self.step, tags, clr.end)
             print(prompt_text)

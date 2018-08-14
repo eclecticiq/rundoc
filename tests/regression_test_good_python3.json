@@ -10,7 +10,9 @@
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ],
-            "tags": "python3"
+            "tags": [
+                "python3"
+            ]
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -22,7 +24,10 @@
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ],
-            "tags": "python3#block-1"
+            "tags": [
+                "python3",
+                "block-1"
+            ]
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -34,7 +39,10 @@
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ],
-            "tags": "python3#block-2"
+            "tags": [
+                "python3",
+                "block-2"
+            ]
         },
         {
             "code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n",
@@ -46,7 +54,11 @@
                     "user_code": "import os\nfrom contextlib import suppress\nprint(\"python3 block-1 block-2\")\nfor x in range(0,14):\n    with suppress(KeyError):\n        print(os.environ['r_env_'+str(x)])\nfor x in range(0,10):\n    with suppress(KeyError):\n        print(os.environ['r_sec_'+str(x)])\n"
                 }
             ],
-            "tags": "python3#block-1#block-2"
+            "tags": [
+                "python3",
+                "block-1",
+                "block-2"
+            ]
         }
     ],
     "env": {}
