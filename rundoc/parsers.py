@@ -3,7 +3,7 @@ Tools for parsing markdown docs.
 """
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from rundoc.block import DocBlock
+from rundoc.block import DocBlock, block_actions
 from rundoc.commander import DocCommander
 import json
 import markdown
@@ -155,12 +155,18 @@ def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
 
 def print_clean_doc(input):
     mkd_data = input.read()
-    print(
-        re.sub(
-            '(\\n```[^#:]*).*?(\\n.*?```\\n)',
-            '\\1\\2',
+    mkd_data = re.sub(
+        '(\\n```[^#:]*).*?(\\n.*?```\\n)',
+        '\\1\\2',
+        mkd_data,
+        flags=re.DOTALL
+        )
+    for action_tag in block_actions:
+        mkd_data = re.sub(
+            '(\\n```'+action_tag+')(\\n.*?```\\n)',
+            '\\n```\\2',
             mkd_data,
             flags=re.DOTALL
             )
-        )
+    print(mkd_data)
 
