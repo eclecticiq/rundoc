@@ -12,6 +12,19 @@ import operator
 import re
 
 
+def read_mkd_to_html(input, tags=[], must_have_tags=[], must_not_have_tags=[]):
+    """Read markdown stream and return html string."""
+    mkd_data = input.read()
+    html_data = markdown.markdown(
+        mkd_data,
+        extensions = [ 
+            'markdown_rundoc.rundoc_code(tags={},must_have_tags={}, must_not_have_tags={})'.format(
+                tags, must_have_tags, must_not_have_tags,
+                )
+            ]
+        )
+    return html_data
+
 def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     light=False, **kwargs):
     """Parse code blocks from markdown file and return DocCommander object.
@@ -30,15 +43,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     Returns:
         DocCommander object.
     """
-    mkd_data = input.read()
-    html_data = markdown.markdown(
-        mkd_data,
-        extensions = [ 
-            'markdown_rundoc.rundoc_code(tags={},must_have_tags={}, must_not_have_tags={})'.format(
-                tags, must_have_tags, must_not_have_tags,
-                )
-            ]
-        )
+    html_data = read_mkd_to_html(input, tags, must_have_tags, must_not_have_tags)
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
 
@@ -120,12 +125,9 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
     return commander
 
 def get_tags(input, **kwargs):
+    """Read markdown file and return list of available tags."""
     tag_dict = defaultdict(int)
-    mkd_data = input.read()
-    html_data = markdown.markdown(
-        mkd_data,
-        extensions = [ 'markdown_rundoc.rundoc_code' ]
-        )
+    html_data = read_mkd_to_html(input)
     soup = BeautifulSoup(html_data, 'html.parser')
     match = re.compile("^.+$")
     code_block_elements = soup.findAll(name='code', attrs={"class":match,})
