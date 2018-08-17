@@ -119,7 +119,7 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
         commander.doc_blocks.append(doc_block)
     return commander
 
-def get_tags(input):
+def get_tags(input, **kwargs):
     tag_dict = defaultdict(int)
     mkd_data = input.read()
     html_data = markdown.markdown(
@@ -130,16 +130,14 @@ def get_tags(input):
     match = re.compile("^.+$")
     code_block_elements = soup.findAll(name='code', attrs={"class":match,})
     for element in code_block_elements:
-        class_name = element.get_attribute_list('class')[0]
-        if class_name:
-            for tag in class_name.split('#'):
-                tag_dict[tag] += 1
+        for class_name in element.get_attribute_list('class'):
+            tag_dict[class_name] += 1
     sorted_tag_dict = sorted(tag_dict.items(), key=operator.itemgetter(1),
         reverse=True)
     return sorted_tag_dict
 
 def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
-    light=False, pretty=False):
+    light=False, pretty=False, **kwargs):
     commander = parse_doc(input, tags, must_have_tags, must_not_have_tags,
         light)
     if pretty:
@@ -155,6 +153,7 @@ def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
 
 def print_clean_doc(input):
     mkd_data = input.read()
+    # clean all tags except the interpreter
     mkd_data = re.sub(
         '(\\n```[^#:]*).*?(\\n.*?```\\n)',
         '\\1\\2',
@@ -162,6 +161,7 @@ def print_clean_doc(input):
         flags=re.DOTALL
         )
     for action_tag in block_actions:
+        # clean all action tags (no highlighting rules for them)
         mkd_data = re.sub(
             '(\\n```'+action_tag+')(\\n.*?```\\n)',
             '\\n```\\2',
