@@ -203,6 +203,16 @@ export var3=system_value_3
 rundoc run input.md -i
 ```
 
+### Single session
+
+By default, all code blocks are run in separate interpreter sessions. If you define a function or set a variable in one code block, it will not be available in next one.  
+To work around this use `--single-session` option followed by the name of the interpreter. All code blocks will be merged into a single step.  
+Note that only one interpreter type can be run per markdown file if you use single session option.
+
+```
+rundoc run input.md --single-session bash
+```
+
 ### Replay
 
 To replay all code blocks found in output of `run` command, just use `replay` command like so:

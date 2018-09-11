@@ -26,7 +26,7 @@ def read_mkd_to_html(input, tags=[], must_have_tags=[], must_not_have_tags=[]):
     return html_data
 
 def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
-    light=False, **kwargs):
+    single_session="", light=False, **kwargs):
     """Parse code blocks from markdown file and return DocCommander object.
 
     Args:
@@ -43,6 +43,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     Returns:
         DocCommander object.
     """
+    must_have_tags += single_session
     html_data = read_mkd_to_html(input, tags, must_have_tags, must_not_have_tags)
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
@@ -61,12 +62,18 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
             "secrets",
             }.intersection(tag.get('class', {})))
     code_block_elements = soup.findAll(is_runnable_block)
+    all_code = ""
     for element in code_block_elements:
         tags_list = element.get_attribute_list('class')
         tags_list = list(filter(bool, tags_list))
         if tags_list:
             tags_list.remove('rundoc_selected')
-            commander.add(element.getText(), tags_list, light)
+            if single_session:
+                all_code += element.getText()
+            else:
+                commander.add(element.getText(), tags_list, light)
+    if single_session:
+        commander.add(all_code, [single_session], light)
 
     # find environments
     def is_environment(tag):

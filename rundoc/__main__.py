@@ -63,6 +63,12 @@ _run_specific_options = [
         environment. Useful when you export variables before running rundoc and
         expect them to override default values that are set in the docs.""")
     ),
+    click.option('-j', '--single-session', type=str, default='',
+    help=dedent(
+    """Run all blocks in a single interpreter session. By default, each block
+    is run in seperate session, rendering definitions from previous ones lost.
+    Specify the interpreter (only one) after this option.""")
+    ),
 ]
 
 _output_style_options = [
