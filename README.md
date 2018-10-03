@@ -1,7 +1,7 @@
 
 rundoc <img height="60px" src="https://paste.nul.one/2018-07-13_02.42.55.259669121_md5_ecd6014ae193f9ee519c9f423fbd69f1_logo.svg">
 ==================================================
-[![Gitter Join Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rundoc/Lobby)
+[![Chat on Freenode](https://img.shields.io/badge/chat-on%20freenode-brightgreen.svg)](https://webchat.freenode.net/?channels=%23rundoc&uio=MTE9MTk117)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Documentation Status](https://readthedocs.org/projects/rundoc/badge/?version=latest)](http://rundoc.readthedocs.io/en/latest/?badge=latest)
