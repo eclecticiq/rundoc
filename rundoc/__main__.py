@@ -1,7 +1,7 @@
 """
 Main module for rundoc command line utility.
 """
-from rundoc import parsers, clr
+from rundoc import parsers, ansi
 from textwrap import dedent
 import click
 import logging
@@ -121,11 +121,11 @@ def cli(ctx, **kwargs):
 @click.argument('input', type=click.File('r'))
 def run(**kwargs):
     "Run code from markdown file."
-    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(clr.yellow, clr.end))
+    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(ansi.yellow, ansi.end))
     try:
         commander = parsers.parse_doc(**kwargs)
     except rundoc.BadEnv as e:
-        print("{}{}{}".format(clr.red, e, clr.end))
+        print("{}{}{}".format(ansi.red, e, ansi.end))
         sys.exit(1)
     try:
         commander.run(**kwargs)
@@ -133,7 +133,7 @@ def run(**kwargs):
         commander.die_with_grace()
         sys.exit(1)
     except rundoc.BadEnv as e:
-        print("{}{}{}".format(clr.red, e, clr.end))
+        print("{}{}{}".format(ansi.red, e, ansi.end))
         sys.exit(1)
     except rundoc.CodeFailed as e:
         sys.exit(1)
@@ -144,7 +144,7 @@ def run(**kwargs):
 @click.argument('input', type=click.File('r'))
 def replay(**kwargs):
     "Run code from the output of 'run' command."
-    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(clr.yellow, clr.end))
+    if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(ansi.yellow, ansi.end))
     try:
         commander = parsers.parse_output(**kwargs)
     except Exception as e:
@@ -156,7 +156,7 @@ def replay(**kwargs):
         commander.die_with_grace()
         sys.exit(1)
     except rundoc.BadEnv as e:
-        print("{}{}{}".format(clr.red, e, clr.end))
+        print("{}{}{}".format(ansi.red, e, ansi.end))
         sys.exit(1)
     except rundoc.CodeFailed as e:
         sys.exit(1)

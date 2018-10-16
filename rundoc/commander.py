@@ -3,7 +3,7 @@ Classes and tools for manipulating code block execution.
 """
 from collections import OrderedDict
 from prompt_toolkit import prompt
-from rundoc import clr, RundocException, BadEnv, CodeFailed, BadInterpreter
+from rundoc import ansi, RundocException, BadEnv, CodeFailed, BadInterpreter
 from rundoc.block import DocBlock
 from time import sleep
 import json
@@ -59,7 +59,7 @@ class OrderedEnv(OrderedDict):
         print(self.title)
         msg = "{}\tConfirm/supply/modify environment variables."
         msg += "\n\tPress Return to finish.{}"
-        msg = msg.format(clr.bold, clr.end)
+        msg = msg.format(ansi.bold, ansi.end)
         print(msg)
         env_string = str(self)
         env_string = prompt( '[env]\n', default = env_string )
@@ -98,10 +98,10 @@ class DocCommander(object):
     """
     def __init__(self):
         self.env = OrderedEnv(
-            "\n{}==== env variables{}".format(clr.bold, clr.end)
+            "\n{}==== env variables{}".format(ansi.bold, ansi.end)
             )
         self.secrets = OrderedEnv(
-            "\n{}==== secrets{}".format(clr.bold, clr.end)
+            "\n{}==== secrets{}".format(ansi.bold, ansi.end)
             )
         self.doc_blocks = []
         self.running = False
@@ -143,9 +143,9 @@ class DocCommander(object):
         if self.running:
             self.doc_block.kill()
             print("\n==== {}Quit at step {} with keyboard interrupt.{}\n".format(
-                clr.red,
+                ansi.red,
                 self.step,
-                clr.end,
+                ansi.end,
                 )
             )
         if self.output:
@@ -191,7 +191,7 @@ class DocCommander(object):
             self.secrets.prompt_missing()
         msg = "\n{}Running code blocks from supplied documentation."
         msg += "\nModify and/or confirm displayed code by pressing Return.{}"
-        print(msg.format(clr.bold, clr.end))
+        print(msg.format(ansi.bold, ansi.end))
         self.env.load()
         self.secrets.load()
         self.running = True
@@ -203,7 +203,7 @@ class DocCommander(object):
             tags = '[{}] '.format(self.doc_block.interpreter)
             tags += ' '.join(self.doc_block.tags[1:])
             prompt_text = "\n{}=== Step {} {}{}".format(
-                clr.bold, self.step, tags, clr.end)
+                ansi.bold, self.step, tags, ansi.end)
             print(prompt_text)
             if not prompt_this_time:
                 print(self.doc_block)
@@ -212,17 +212,17 @@ class DocCommander(object):
             ask_for_prompt_once = False
             if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
-                    clr.green, self.step, clr.end))
+                    ansi.green, self.step, ansi.end))
                 self.step += 1
                 continue
             # in case it failed:
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
-                clr.red, self.step, self.doc_block.last_run['retcode'], clr.end))
+                ansi.red, self.step, self.doc_block.last_run['retcode'], ansi.end))
             if ask>=2:
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
-                print(msg.format(clr.red, clr.bold, self.step, clr.end))
+                print(msg.format(ansi.red, ansi.bold, self.step, ansi.end))
                 input()
                 ask_for_prompt_once = True
                 continue
@@ -231,7 +231,7 @@ class DocCommander(object):
                 raise CodeFailed("Failed at step {} with exit code '{}'".format(
                         self.step, self.doc_block.last_run['retcode']))
             print("{}Retry number {}.".format(
-                clr.bold, len(self.doc_block.runs), clr.end), end="")
+                ansi.bold, len(self.doc_block.runs), ansi.end), end="")
             sleep(retry_pause)
         self.step = 0
         self.write_output()

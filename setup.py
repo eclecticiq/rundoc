@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import rundoc as project
+
 from setuptools import setup, find_packages
 import os
-import rundoc
 
 def here(*path):
     return os.path.join(os.path.dirname(__file__), *path)
@@ -12,19 +13,19 @@ def get_file_contents(filename):
         return fp.read()
 
 setup(
-    name = 'rundoc',
-    description = rundoc.__doc__.strip(),
+    name = project.__name__,
+    description = project.__doc__.strip(),
     long_description=get_file_contents('README.md'),
-    url = 'https://gitlab.com/nul.one/rundoc',
-    download_url = 'https://gitlab.com/nul.one/rundoc/-/archive/{0}/rundoc-{0}.tar.gz'.format(rundoc.__version__),
-    version = rundoc.__version__,
-    author = rundoc.__author__,
-    author_email = rundoc.__author_email__,
-    license = rundoc.__license__,
-    packages = [ 'rundoc' ],
+    url = 'https://gitlab.com/nul.one/' + project.__name__,
+    download_url = 'https://gitlab.com/nul.one/{1}/-/archive/{0}/{1}-{0}.tar.gz'.format(project.__version__, project.__name__),
+    version = project.__version__,
+    author = project.__author__,
+    author_email = project.__author_email__,
+    license = project.__license__,
+    packages = [ project.__name__ ],
     entry_points={ 
         'console_scripts': [
-            'rundoc=rundoc.__main__:cli',
+            '{0}={0}.__main__:cli'.format(project.__name__),
         ],
     },
     classifiers=[
