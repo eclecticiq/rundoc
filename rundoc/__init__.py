@@ -1,8 +1,7 @@
 """
 A command-line utility that runs code blocks from markdown files.
 """
-
-__version__ = "0.3.12"
+__version__ = "0.3.14"
 __license__ = "BSD"
 __year__ = "2017-2018"
 __author__ = "Predrag Mandic"
@@ -10,7 +9,7 @@ __author_email__ = "predrag@eclecticiq.com"
 __copyright__ = "Copyright {} {} <{}>".format(
     __year__, __author__, __author_email__)
 
-class clr:
+class ansi:
     ''' 
     ANSI colors for pretty output.
     '''

@@ -8,7 +8,7 @@
 ###
 
 script_dir=$(cd `dirname "$0"`; pwd; cd - 2>&1 >> /dev/null)
-cd $script_dir
+cd $script_dir/regression_test_files
 
 if [ "$1" = "gen" ]; then
     generate=true
@@ -80,6 +80,14 @@ test_tags() {
         rm -f $file_name
     fi
 }
+
+### SCRIPT STARTS HERE
+
+echo "
+Rundoc regression tests
+=======================
+"
+
 test_tags
 test_tags bad-tag
 test_tags bash
