@@ -4,5 +4,5 @@ regression:
   - apt-get update -qy
   - apt-get install -y python3-pip
   - pip3 install -U .
-  - ./tests/regression.sh
+  - ./tests/all.sh
 
