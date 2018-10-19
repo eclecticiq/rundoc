@@ -46,7 +46,7 @@ setup(
     ],
     install_requires = [
         'beautifulsoup4>=4.4.1,<5.0',
-        'click>=6.7,<7.0',
+        'click>=6.7,<8.0',
         'markdown>=2.6.9,<3.0',
         'markdown-rundoc>=0.2.1,<0.3.0',
         'prompt_toolkit>=2.0,<3.0',
