@@ -122,5 +122,5 @@ fi
 # done
 echo "Tests run: $tests"
 echo "Failed tests: $failed_tests"
-
+exit $failed_tests
 
