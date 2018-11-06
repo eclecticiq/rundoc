@@ -512,7 +512,11 @@ def test_doccommander_add():
     assert dc.doc_blocks[1].tags == [ 'bash', 'test2' ]
 
 def doccommander_worker(dc):
-    dc.run()
+    try:
+        dc.run()
+    except ValueError as e:
+        # in case output file was closed prematuraly
+        pass
 
 def test_doccommander_add__while_running():
     dc = rc.DocCommander()
