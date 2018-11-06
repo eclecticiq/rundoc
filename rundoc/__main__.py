@@ -105,7 +105,7 @@ _tag_options = [
 @click.option('-d', '--debug', is_flag=True,
     help="Enable debug mode with output of each action in the log.")
 @click.pass_context
-def cli(ctx, **kwargs):
+def cli(ctx, **kwargs): # pragma: no cover
     logging.basicConfig(
         format = '%(asctime)s.%(msecs)03d, %(levelname)s: %(message)s',
         datefmt = '%Y-%m-%d %H:%M:%S',
@@ -119,7 +119,7 @@ def cli(ctx, **kwargs):
 @add_options(_tag_options)
 @add_options(_run_specific_options)
 @click.argument('input', type=click.File('r'))
-def run(**kwargs):
+def run(**kwargs): # pragma: no cover
     "Run code from markdown file."
     if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(ansi.yellow, ansi.end))
     try:
@@ -142,7 +142,7 @@ def run(**kwargs):
 @add_options(_run_control_options)
 @add_options(_output_style_options)
 @click.argument('input', type=click.File('r'))
-def replay(**kwargs):
+def replay(**kwargs): # pragma: no cover
     "Run code from the output of 'run' command."
     if kwargs['yes']: print("{}Deprecated option: -y, --yes. See -a, --ask instead.{}".format(ansi.yellow, ansi.end))
     try:
@@ -164,7 +164,7 @@ def replay(**kwargs):
 
 @cli.command(name='list-tags')
 @click.argument('input', type=click.File('r'))
-def list_tags(**kwargs):
+def list_tags(**kwargs): # pragma: no cover
     "List all unique tags in the markdown file."
     try:
         tags = parsers.get_tags(**kwargs)
@@ -177,7 +177,7 @@ def list_tags(**kwargs):
         sys.exit(1)
 
 @cli.command(name='action-tags')
-def special_tags(**kwargs):
+def special_tags(**kwargs): # pragma: no cover
     "Show available action tags and their use in markdown."
     block_actions = rundoc.block.block_actions
     action_tags_info = ""
@@ -191,7 +191,7 @@ def special_tags(**kwargs):
 @add_options(_output_style_options)
 @click.option('--pretty', is_flag=True, help="Human readable terminal output.")
 @click.argument('input', type=click.File('r'))
-def list_blocks(**kwargs):
+def list_blocks(**kwargs): # pragma: no cover
     "List all blocks that would be executed with selected tags and parameters."
     try:
         print(parsers.get_blocks(**kwargs))
@@ -201,7 +201,7 @@ def list_blocks(**kwargs):
 
 @cli.command(name='clean-doc')
 @click.argument('input', type=click.File('r'))
-def clean_doc(**kwargs):
+def clean_doc(**kwargs): # pragma: no cover
     "Read markdown file, strip any rundoc specific markup and send to stdout."
     try:
         print(parsers.get_clean_doc(**kwargs))
@@ -209,6 +209,6 @@ def clean_doc(**kwargs):
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     cli()
 

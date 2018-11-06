@@ -1,9 +1,10 @@
 import pytest
 
-from rundoc import BadInterpreter, BadEnv, RundocException
+from rundoc import BadInterpreter, BadEnv, RundocException, CodeFailed
 import rundoc.block as rb
 import rundoc.commander as rc
 import rundoc.parsers as rp
+import rundoc.__main__ as rm
 
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -558,16 +559,22 @@ def test_doccommander_write_output(dummy_file):
         output = json.loads(f.read())
         assert len(output['code_blocks']) == 1
 
-def test_doccommander_run():
+def test_doccommander_run(dummy_file):
     dc = rc.DocCommander()
     dc.add('echo "test1"\n', ['bash','test1'])
     dc.add('echo "test2"\n', ['bash','test1'])
     dc.add('echo "test3"\n', ['bash','test1'])
-    dc.run()
+    with open(dummy_file, 'w') as f:
+        dc.run(inherit_env=True, output=f)
     assert len(dc.get_dict()['code_blocks']) == 3
     for cb in dc.get_dict()['code_blocks']:
         assert len(cb['runs']) == 1
 
+def test_doccommander_run__failed():
+    dc = rc.DocCommander()
+    dc.add('cat /non_existent', ['bash','test1'])
+    with pytest.raises(CodeFailed):
+        dc.run(retry=5, retry_pause=0.1)
 
 ###
 # Tests for parsers.py
@@ -678,5 +685,14 @@ def test_parsers__get_clean_doc():
     input.seek(0)
     assert rp.get_clean_doc(input) == expect
     
+###
+# Tests for __main__.py
+###
+
+def test_main_add_options():
+    rm.add_options(rm._run_control_options)
+    rm.add_options(rm._run_specific_options)
+    rm.add_options(rm._output_style_options)
+    rm.add_options(rm._tag_options)
 
 
