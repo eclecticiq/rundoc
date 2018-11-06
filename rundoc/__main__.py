@@ -194,7 +194,7 @@ def special_tags(**kwargs):
 def list_blocks(**kwargs):
     "List all blocks that would be executed with selected tags and parameters."
     try:
-        parsers.print_blocks(**kwargs)
+        print(parsers.get_blocks(**kwargs))
     except Exception as e:
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)
@@ -204,7 +204,7 @@ def list_blocks(**kwargs):
 def clean_doc(**kwargs):
     "Read markdown file, strip any rundoc specific markup and send to stdout."
     try:
-        parsers.print_clean_doc(**kwargs)
+        print(parsers.get_clean_doc(**kwargs))
     except Exception as e:
         logger.error('Failed to parse file: {}'.format(e))
         sys.exit(1)

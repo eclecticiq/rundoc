@@ -12,11 +12,10 @@ import operator
 import re
 
 
-def read_mkd_to_html(input, tags=[], must_have_tags=[], must_not_have_tags=[]):
+def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags=''):
     """Read markdown stream and return html string."""
-    mkd_data = input.read()
     html_data = markdown.markdown(
-        mkd_data,
+        mkd,
         extensions = [ 
             'markdown_rundoc.rundoc_code(tags={},must_have_tags={}, must_not_have_tags={})'.format(
                 tags, must_have_tags, must_not_have_tags,
@@ -44,7 +43,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
         DocCommander object.
     """
     must_have_tags += single_session
-    html_data = read_mkd_to_html(input, tags, must_have_tags, must_not_have_tags)
+    html_data = mkd_to_html(input.read(), tags, must_have_tags, must_not_have_tags)
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
 
@@ -129,53 +128,51 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
             light=light,
             )
         commander.doc_blocks.append(doc_block)
+        commander.env.extend(data['env'])
     return commander
 
 def get_tags(input, **kwargs):
     """Read markdown file and return list of available tags."""
     tag_dict = defaultdict(int)
-    html_data = read_mkd_to_html(input)
+    html_data = mkd_to_html(input.read())
     soup = BeautifulSoup(html_data, 'html.parser')
     match = re.compile("^.+$")
     code_block_elements = soup.findAll(name='code', attrs={"class":match,})
     for element in code_block_elements:
         for class_name in element.get_attribute_list('class'):
             tag_dict[class_name] += 1
+    if 'rundoc_selected' in tag_dict:
+        del(tag_dict['rundoc_selected'])
     sorted_tag_dict = sorted(tag_dict.items(), key=operator.itemgetter(1),
         reverse=True)
     return sorted_tag_dict
 
-def print_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
-    light=False, pretty=False, **kwargs):
+def get_blocks(input, tags="", must_have_tags="", must_not_have_tags="",
+    single_session="", light=False, pretty=False, **kwargs):
     commander = parse_doc(input, tags, must_have_tags, must_not_have_tags,
-        light)
+        single_session, light)
+    blocks = ""
     if pretty:
         step = 0
         for block in commander.doc_blocks:
             step += 1
-            print("{}. [{}] {}".format(step, block.interpreter, '#'.join(block.tags)))
-            print("=================")
-            print(block)
-            print("")
+            blocks += "{}. [{}] {}".format(
+                step, block.interpreter, '#'.join(block.tags))
+            blocks += "\n=================\n"
+            blocks += str(block)
+            blocks += "\n"
     else:
-        print(json.dumps(commander.get_dict(), sort_keys=True, indent=4))
+        blocks = json.dumps(commander.get_dict(), sort_keys=True, indent=4)
+    return blocks
 
-def print_clean_doc(input):
+def get_clean_doc(input):
     mkd_data = input.read()
     # clean all tags except the interpreter
     mkd_data = re.sub(
-        '(\\n```[^#:]*).*?(\\n.*?```\\n)',
-        '\\1\\2',
+        '^(```[^#:]*).*$',
+        '\\1',
         mkd_data,
-        flags=re.DOTALL
+        flags=re.MULTILINE
         )
-    for action_tag in block_actions:
-        # clean all action tags (no highlighting rules for them)
-        mkd_data = re.sub(
-            '(\\n```'+action_tag+')(\\n.*?```\\n)',
-            '\\n```\\2',
-            mkd_data,
-            flags=re.DOTALL
-            )
-    print(mkd_data)
+    return mkd_data
 

@@ -8,5 +8,13 @@ cd $script_dir
 
 ./regression.sh
 
+cd ..
+pip3 install virtualenv
+virtualenv -p python3 env
+source env/bin/activate
+pip install pytest coverage pytest-cov
+py.test -vv --cov=rundoc --cov-report html
+coverage report
+
 exit 0
 
