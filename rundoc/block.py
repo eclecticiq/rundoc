@@ -3,7 +3,6 @@ Contains class representation of executable code block.
 """
 from collections import OrderedDict
 from prompt_toolkit import prompt
-from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -30,6 +29,7 @@ def block_action(f):
     """
     block_actions.setdefault(
         f.__name__.replace("_", "-").strip('-'), f)
+    return f
 
 def fill_env_placeholders(s):
     "Replace %:VARIABLE:% with value of VARIABLE in os.environ."
@@ -40,7 +40,7 @@ def fill_env_placeholders(s):
         res = res.replace("%:"+variable+":%", os.environ.get(variable) or "")
     return res
 
-def __write_file_action(args, contents, mode='a', fill=False):
+def _write_file_action(args, contents, mode='a', fill=False):
     "Helper function used by 'create-file' and 'append-file' actions."
     filename    = os.path.expanduser(args.get(0))
     permissions = args.get(1)
@@ -48,14 +48,14 @@ def __write_file_action(args, contents, mode='a', fill=False):
     group       = args.get(3)
     uid = None
     gid = None
-    if user:
+    if user: # pragma: no cover
         uid = pwd.getpwnam(user).pw_uid
     else:
         uid = os.geteuid()
-    if group:
+    if group: # pragma: no cover
         gid = grp.getgrnam(group).gr_gid
     else:
-        if user:
+        if user: # pragma: no cover
             gid = pwd.getpwuid(uid).pw_gid
         else:
             gid = os.getegid()
@@ -70,7 +70,7 @@ def __write_file_action(args, contents, mode='a', fill=False):
     return 0
 
 @block_action
-def __create_file(args, contents):
+def _create_file(args, contents):
     """create-file:NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Create file on path NAME with OCTAL_PERMISSIONS owned by USERNAME:GROUP and
     fill with contents of a code block.
@@ -79,10 +79,10 @@ def __create_file(args, contents):
         example = True
         ```
     """
-    return __write_file_action(args, contents, 'w+')
+    return _write_file_action(args, contents, 'w+')
 
 @block_action
-def __r_create_file(args, contents):
+def _r_create_file(args, contents):
     """r-create-file:NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Same as 'create-file' but also replace %:VAR:% placeholders with env vars.
     Example:
@@ -93,10 +93,10 @@ def __r_create_file(args, contents):
         example = %:example_value:%
         ```
     """
-    return __write_file_action(args, contents, 'w+', True)
+    return _write_file_action(args, contents, 'w+', True)
 
 @block_action
-def __append_file(args, contents):
+def _append_file(args, contents):
     """append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Edit file on path NAME, set OCTAL_PERMISSIONS and chown to USERNAME:GROUP
     and paste contents of a code block at the end of the file.
@@ -105,10 +105,10 @@ def __append_file(args, contents):
         port = 9200
         ```
     """
-    return __write_file_action(args, contents, 'a+')
+    return _write_file_action(args, contents, 'a+')
 
 @block_action
-def __r_append_file(args, contents):
+def _r_append_file(args, contents):
     """r-append-file:PATH/NAME[:OCTAL_PERMISSIONS[:USERNAME[:GROUP]]]
     Same as 'append-file' but also replace %:VAR:% placeholders with env vars.
     Note that only code block contents will be replaced. Existing part of file
@@ -121,10 +121,10 @@ def __r_append_file(args, contents):
         port = %:port_number:%
         ```
     """
-    return __write_file_action(args, contents, 'a+', True)
+    return _write_file_action(args, contents, 'a+', True)
 
 @block_action
-def __usage(args, contents):
+def _usage(args, contents): # pragma: no cover
     """usage
     Print code block contents and exit. Used to print usage help if no tags are
     provided.
@@ -194,36 +194,27 @@ class DocBlock(object):
         else:
             return None
 
-    def get_lexer_class(self):
-        try:
-            # try because lexer may not exist for current interpreter
-            return get_lexer_by_name(self.interpreter).__class__
-        except:
-            # no lexer
-            return None
-
     def get_lexer(self):
         try:
             # try because lexer may not exist for current interpreter
-            return PygmentsLexer(self.get_lexer_class())
+            return get_lexer_by_name(self.interpreter)
         except:
             # no lexer
             return None
 
     def __str__(self):
-        lexer_class = self.get_lexer_class()
         code = ''
         if self.last_run:
             code = self.last_run['user_code'].strip()
         else:
             code = self.code
-        if lexer_class:
+        if self.get_lexer():
             return highlight(
                 code,
-                lexer_class(),
+                self.get_lexer(),
                 Terminal256Formatter(style=self.HighlightStyle)
                 )
-        return code
+        return code # pragma: no cover
 
     def get_dict(self):
         return {
@@ -233,7 +224,7 @@ class DocBlock(object):
             'runs': self.runs,
         }
 
-    def prompt_user(self, prompt_text='» '):
+    def prompt_user(self, prompt_text='» '): # pragma: no cover
         self.last_run['user_code'] = prompt(
             prompt_text,
             default = self.code,
@@ -258,9 +249,6 @@ class DocBlock(object):
             self.last_run['output'] += line
             sys.stdout.write(line)
 
-    def is_running(self):
-        return self.process and self.process.poll() is None
-
     def run(self, prompt=True):
         if not self.process:
             self.runs.append(
@@ -272,20 +260,15 @@ class DocBlock(object):
                     'time_stop': None,
                 }
             )
-            if prompt:
+            if prompt: # pragma: no cover
                 self.prompt_user()
             else:
                 self.last_run['user_code'] = self.code
             code = self.last_run['user_code'].strip()
             self.last_run['time_start'] = time.time()
             if self.is_action:
-                try:
-                    action = get_block_action(self.interpreter)
-                    self.last_run['retcode'] = action(code)
-                except Exception as e:
-                    self.last_run['output'] = str(e)
-                    print(str(e))
-                    self.last_run['retcode'] = 1
+                action = get_block_action(self.interpreter)
+                self.last_run['retcode'] = action(code)
                 self.last_run['time_stop'] = time.time()
                 self.process = None
                 return
@@ -300,7 +283,7 @@ class DocBlock(object):
                 self.process.stdin.write(code.encode())
                 self.process.stdin.flush()
                 self.process.stdin.close()
-        while self.is_running():
+        while self.process and self.process.poll() is None:
             self.print_output()
         self.print_output(final=True)
         self.last_run['time_stop'] = time.time()

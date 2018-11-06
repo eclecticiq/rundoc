@@ -53,7 +53,7 @@ class OrderedEnv(OrderedDict):
                 raise BadEnv("Bad environment line: {}".format(line))
             self.append(var, val, collect_existing_env)
 
-    def prompt(self):
+    def prompt(self): # pragma: no cover
         if not len(self):
             return
         print(self.title)
@@ -66,7 +66,7 @@ class OrderedEnv(OrderedDict):
         self.clear()
         self.import_string(env_string, collect_existing_env=False)
 
-    def prompt_missing(self):
+    def prompt_missing(self): # pragma: no cover
         missing = self.__class__(self.title)
         for var in self:
             if not self[var]:
@@ -125,6 +125,8 @@ class DocCommander(object):
         }
 
     def add(self, code, tags, light=False):
+        if self.running:
+            raise RundocException("Modifying a running DocCommander object.")
         try:
             self.doc_blocks.append(
                 DocBlock(
@@ -135,8 +137,6 @@ class DocCommander(object):
                 )
         except RundocException as re:
             logging.error(str(re))
-            if self.running:
-                self.doc_block.kill()
             sys.exit(1)
 
     def die_with_grace(self):
