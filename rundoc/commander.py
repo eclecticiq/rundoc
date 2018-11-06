@@ -183,7 +183,7 @@ class DocCommander(object):
         if inherit_env:
             self.env.inherit_existing_env()
             self.secrets.inherit_existing_env()
-        if ask>=1:
+        if ask>=1: # pragma: no cover
             self.env.prompt()
             self.secrets.prompt()
         else:
@@ -219,7 +219,7 @@ class DocCommander(object):
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                 ansi.red, self.step, self.doc_block.last_run['retcode'], ansi.end))
-            if ask>=2:
+            if ask>=2: # pragma: no cover
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(ansi.red, ansi.bold, self.step, ansi.end))
