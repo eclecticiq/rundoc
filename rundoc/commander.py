@@ -53,7 +53,7 @@ class OrderedEnv(OrderedDict):
                 raise BadEnv("Bad environment line: {}".format(line))
             self.append(var, val, collect_existing_env)
 
-    def prompt(self):
+    def prompt(self): # pragma: no cover
         if not len(self):
             return
         print(self.title)
@@ -66,7 +66,7 @@ class OrderedEnv(OrderedDict):
         self.clear()
         self.import_string(env_string, collect_existing_env=False)
 
-    def prompt_missing(self):
+    def prompt_missing(self): # pragma: no cover
         missing = self.__class__(self.title)
         for var in self:
             if not self[var]:
@@ -125,6 +125,8 @@ class DocCommander(object):
         }
 
     def add(self, code, tags, light=False):
+        if self.running:
+            raise RundocException("Modifying a running DocCommander object.")
         try:
             self.doc_blocks.append(
                 DocBlock(
@@ -135,8 +137,6 @@ class DocCommander(object):
                 )
         except RundocException as re:
             logging.error(str(re))
-            if self.running:
-                self.doc_block.kill()
             sys.exit(1)
 
     def die_with_grace(self):
@@ -183,7 +183,7 @@ class DocCommander(object):
         if inherit_env:
             self.env.inherit_existing_env()
             self.secrets.inherit_existing_env()
-        if ask>=1:
+        if ask>=1: # pragma: no cover
             self.env.prompt()
             self.secrets.prompt()
         else:
@@ -219,7 +219,7 @@ class DocCommander(object):
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                 ansi.red, self.step, self.doc_block.last_run['retcode'], ansi.end))
-            if ask>=2:
+            if ask>=2: # pragma: no cover
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(ansi.red, ansi.bold, self.step, ansi.end))
