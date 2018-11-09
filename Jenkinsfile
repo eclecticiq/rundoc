@@ -18,7 +18,7 @@ stages {
         }
     stage('Test rundoc') {
       steps {
-            sh " export LC_ALL=C.UTF-8 ; export LANG=C.UTF-8 ; export PATH=$PATH:~/.local/bin; ./tests/all.sh"
+            sh "export PATH=$PATH:~/.local/bin; ./tests/all.sh"
           }
         }
   } //stages
