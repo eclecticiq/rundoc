@@ -3,11 +3,11 @@ Tools for parsing markdown docs.
 """
 from bs4 import BeautifulSoup
 from collections import defaultdict
+from markdown_rundoc.rundoc_code import RundocCodeExtension
 from rundoc.block import DocBlock, block_actions
 from rundoc.commander import DocCommander
 import json
 import markdown
-import markdown_rundoc.rundoc_code
 import operator
 import re
 
@@ -17,8 +17,10 @@ def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags=''):
     html_data = markdown.markdown(
         mkd,
         extensions = [ 
-            'markdown_rundoc.rundoc_code(tags={},must_have_tags={}, must_not_have_tags={})'.format(
-                tags, must_have_tags, must_not_have_tags,
+            RundocCodeExtension(
+                tags=tags,
+                must_have_tags=must_have_tags,
+                must_not_have_tags=must_not_have_tags
                 )
             ]
         )
