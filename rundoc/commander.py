@@ -230,8 +230,8 @@ class DocCommander(object):
                 self.write_output()
                 raise CodeFailed("Failed at step {} with exit code '{}'".format(
                         self.step, self.doc_block.last_run['retcode']))
-            print("{}Retry number {}.".format(
-                ansi.bold, len(self.doc_block.runs), ansi.end), end="")
+            print("{}Retry number {}/{}.".format(
+                ansi.bold, len(self.doc_block.runs), retry, ansi.end), end="")
             sleep(retry_pause)
         self.step = 0
         self.write_output()
