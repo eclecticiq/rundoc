@@ -3,6 +3,7 @@ Contains class representation of executable code block.
 """
 from collections import OrderedDict
 from prompt_toolkit import prompt
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -225,10 +226,12 @@ class DocBlock(object):
         }
 
     def prompt_user(self, prompt_text='» '): # pragma: no cover
+        lexer = PygmentsLexer(self.get_lexer().__class__)
+        # ^^ we have to wrap lexer class in PygmentsLexer of prompt toolkit
         self.last_run['user_code'] = prompt(
             prompt_text,
             default = self.code,
-            lexer = self.get_lexer(),
+            lexer = lexer,
             style = style_from_pygments_cls(self.HighlightStyle),
             )
 
