@@ -202,8 +202,8 @@ class DocCommander(object):
                 ask>=3 or ask_for_prompt_once or self.step in breakpoint
             tags = '[{}] '.format(self.doc_block.interpreter)
             tags += ' '.join(self.doc_block.tags[1:])
-            prompt_text = "\n{}=== Step {} {}{}".format(
-                ansi.bold, self.step, tags, ansi.end)
+            prompt_text = "\n{}=== Step {}/{} {}{}".format(
+                ansi.bold, self.step, len(self.doc_blocks), tags, ansi.end)
             print(prompt_text)
             if not prompt_this_time:
                 print(self.doc_block)
