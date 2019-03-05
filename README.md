@@ -1,5 +1,5 @@
 
-rundoc <img height="60px" src="https://gitlab.com/nul.one/rundoc/blob/master/logo.svg">
+rundoc <img height="60px" src="https://gitlab.com/nul.one/rundoc/raw/master/logo.svg?inline=false">
 ==================================================
 [![Chat on Freenode](https://img.shields.io/badge/chat-on%20freenode-brightgreen.svg)](https://webchat.freenode.net/?channels=%23rundoc&uio=MTE9MTk117)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
