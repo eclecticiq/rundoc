@@ -1,0 +1,19 @@
+{
+    "code_blocks": [
+        {
+            "code": "echo \"setting value for test\"\ntest=some_value\necho $test\n",
+            "interpreter": "bash",
+            "runs": [
+                {
+                    "output": "setting value for test\nsome_value\n",
+                    "retcode": 0,
+                    "user_code": "echo \"setting value for test\"\ntest=some_value\necho $test\n"
+                }
+            ],
+            "tags": [
+                "bash"
+            ]
+        }
+    ],
+    "env": {}
+}
