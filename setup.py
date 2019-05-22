@@ -16,6 +16,7 @@ setup(
     name = project.__name__,
     description = project.__doc__.strip(),
     long_description=get_file_contents('README.md'),
+    long_description_content_type='text/markdown',
     url = 'https://gitlab.com/nul.one/' + project.__name__,
     download_url = 'https://gitlab.com/nul.one/{1}/-/archive/{0}/{1}-{0}.tar.gz'.format(project.__version__, project.__name__),
     version = project.__version__,

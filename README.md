@@ -175,6 +175,7 @@ Define required environment variables anywhere in the documentaion with a specia
 - Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your system environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value and will not prompt you for it if `-a` option was not used.
 - All variables will be passed to env for every code block that's being executed.
 - If you use rundoc with tag option `-t`, environment blocks will be filtered in the same way as code blocks.
+- Code blocks will only be selected if no tags are specified on execution **or** any of the selected code blocks contains at least one of the env's tags (in the above case `version5`).
 
 #### Secrets
 
