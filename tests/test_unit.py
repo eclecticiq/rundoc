@@ -620,6 +620,7 @@ def test_parsers__parse_doc__single_session():
     data = '```env\na=b\n```\n```bash#test1\nls\n```\n\n```bash#test2\nls -al\n```'
     expected = rc.DocCommander()
     expected.add('ls\nls -al\n', ['bash'])
+    expected.env.import_string("a=b")
     f.write(data)
     f.seek(0)
     c = rp.parse_doc(f, single_session='bash')
