@@ -249,9 +249,9 @@ class DocBlock(object):
             sys.stdout.write(line)
         else:
             assert self.process
-            line = self.process.stdout.readline().decode(encoding)
-            self.last_run['output'] += line
-            sys.stdout.write(line)
+            chunk = self.process.stdout.read(1).decode(encoding)
+            self.last_run['output'] += chunk
+            sys.stdout.write(chunk)
 
     def run(self, prompt=True):
         if not self.process:

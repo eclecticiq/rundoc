@@ -1,7 +1,7 @@
 """
 A command-line utility that runs code blocks from markdown files.
 """
-__version__ = "0.3.20"
+__version__ = "0.4.1"
 __license__ = "BSD"
 __year__ = "2017-2018"
 __author__ = "Predrag Mandic"

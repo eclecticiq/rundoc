@@ -54,7 +54,7 @@ test_tags() {
         local file_name=regression_test_good_$tags.json
     else
         echo -n "$tests. Test tags: $tags"
-        local file_name=out_test_good_$tags.json
+        local file_name=out_test_good_${tags}.json
     fi
     if [ -z $tags ]; then
         rundoc run -y test_good.md \
@@ -103,9 +103,10 @@ test_tags bash#python
 # bad tests
 ((tests++))
 if $generate; then
-    rundoc run -y test_bad.md -o regression_test_bad_.json
+    rundoc run -y test_bad.md -o regression_test_bad_.json > /dev/null
+    strip_timestamps regression_test_bad_.json
 else
-    echo -n "$tests. Test stderr."
+    echo -n "$tests. Test stderr:"
     rundoc run -y test_bad.md -o out_test_bad_.json > /dev/null 2>&1
     compare_len=$(<regression_test_bad_.json | grep '"output"' | wc -c)
     test_len=$(<out_test_bad_.json | grep '"output"' | wc -c)
@@ -119,8 +120,49 @@ else
     rm -f out_test_bad_.json
 fi
 
+### single session
+if $generate; then
+    out_prefix=regression
+else
+    out_prefix=out
+fi
+rundoc run single_session.md -o ${out_prefix}_single_session_plain.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_plain.json
+rundoc run single_session.md -t test -o ${out_prefix}_single_session_t_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_t_test.json
+rundoc run single_session.md -T test -o ${out_prefix}_single_session_T_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_T_test.json
+rundoc run single_session.md -j bash -o ${out_prefix}_single_session_j_bash.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_j_bash.json
+rundoc run single_session.md -j bash -t test -o ${out_prefix}_single_session_j_bash_t_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_j_bash_t_test.json
+rundoc run single_session.md -j bash -T test -o ${out_prefix}_single_session_j_bash_T_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_j_bash_T_test.json
+if ! $generate; then
+    for name in plain t_test T_test j_bash j_bash_t_test j_bash_T_test; do
+        ((tests++))
+        # compare with existing ones
+        diff regression_single_session_${name}.json \
+             out_single_session_${name}.json \
+            > /dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            ((failed_tests++))
+            echo "$tests. Test single session: $name -> failed"
+        else
+            echo "$tests. Test single session: $name -> success"
+        fi
+        rm -f out_single_session_${name}.json
+    done
+fi
+
+
+
 # done
-echo "Tests run: $tests"
-echo "Failed tests: $failed_tests"
-exit $failed_tests
+if $generate; then
+    echo "generated successfully"
+else
+    echo "Tests run: $tests"
+    echo "Failed tests: $failed_tests"
+    exit $failed_tests
+fi
 
