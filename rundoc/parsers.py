@@ -180,10 +180,10 @@ def get_clean_doc(input):
     mkd_data = input.read()
     # clean all tags except the interpreter
     mkd_data = re.sub(
-        '^(```[^#:]*).*$',
+        '^(```[^#:\n]+).*$',
         '\\1',
         mkd_data,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
         )
     return mkd_data
 
