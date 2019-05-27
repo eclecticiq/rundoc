@@ -12,7 +12,8 @@ import operator
 import re
 
 
-def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags=''):
+def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags='',
+        single_session='', selection_tag='rundoc_selected'):
     """Read markdown stream and return html string."""
     html_data = markdown.markdown(
         mkd,
@@ -20,7 +21,9 @@ def mkd_to_html(mkd, tags='', must_have_tags='', must_not_have_tags=''):
             RundocCodeExtension(
                 tags=tags,
                 must_have_tags=must_have_tags,
-                must_not_have_tags=must_not_have_tags
+                must_not_have_tags=must_not_have_tags,
+                single_session=single_session,
+                selection_tag=selection_tag,
                 )
             ]
         )
@@ -44,8 +47,14 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
     Returns:
         DocCommander object.
     """
-    must_have_tags += single_session
-    html_data = mkd_to_html(input.read(), tags, must_have_tags, must_not_have_tags)
+
+    html_data = mkd_to_html(
+        input.read(),
+        tags,
+        must_have_tags,
+        must_not_have_tags,
+        single_session,
+        )
     soup = BeautifulSoup(html_data, 'html.parser')
     commander = DocCommander()
 
@@ -171,10 +180,10 @@ def get_clean_doc(input):
     mkd_data = input.read()
     # clean all tags except the interpreter
     mkd_data = re.sub(
-        '^(```[^#:]*).*$',
+        '^(```[^#:\n]+).*$',
         '\\1',
         mkd_data,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
         )
     return mkd_data
 
