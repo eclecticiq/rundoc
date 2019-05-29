@@ -1,11 +1,9 @@
 pipeline {
   agent {
-    //predefined docker template on Jenkins Master
-    node { label 'python3-node' }
+    docker { image 'python:3.6'}
    }
 
   options {
-    timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30', daysToKeepStr: '30'))
    }
 
