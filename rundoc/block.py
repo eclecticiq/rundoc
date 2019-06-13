@@ -248,10 +248,17 @@ class DocBlock(object):
             self.last_run['output'] += line
             sys.stdout.write(line)
         else:
-            assert self.process
-            line = self.process.stdout.readline().decode(encoding)
-            self.last_run['output'] += line
-            sys.stdout.write(line)
+            str_chunk = None
+            chunk = bytes()
+            while not isinstance(str_chunk, str):
+                assert self.process
+                chunk += self.process.stdout.read(1)
+                try:
+                    str_chunk = chunk.decode(encoding)
+                except:
+                    str_chunk = None
+            self.last_run['output'] += str_chunk
+            sys.stdout.write(str_chunk)
 
     def run(self, prompt=True):
         if not self.process:

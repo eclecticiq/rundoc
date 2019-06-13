@@ -620,6 +620,7 @@ def test_parsers__parse_doc__single_session():
     data = '```env\na=b\n```\n```bash#test1\nls\n```\n\n```bash#test2\nls -al\n```'
     expected = rc.DocCommander()
     expected.add('ls\nls -al\n', ['bash'])
+    expected.env.import_string("a=b")
     f.write(data)
     f.seek(0)
     c = rp.parse_doc(f, single_session='bash')
@@ -678,8 +679,8 @@ def test_parsers__get_blocks__json():
     assert json.loads(got_blocks) == expect.get_dict()
 
 def test_parsers__get_clean_doc():
-    data = '```env\na=b\n```\n```bash#test1\nls\n```\n\n```bash#test2\nls -al\n```'
-    expect = '```env\na=b\n```\n```bash\nls\n```\n\n```bash\nls -al\n```'
+    data = '```env\na=b\n```\nyes\n```bash#test1\nls\n```\n\n- Test ```bash:me\n\n```bash (\\/me^) {&}_[2=\']-$%!*:test2\nls -al\n```'
+    expect = '```env\na=b\n```\nyes\n```bash\nls\n```\n\n- Test ```bash:me\n\n```bash (\\/me^) {&}_[2=\']-$%!*\nls -al\n```'
     input = io.StringIO()
     input.write(data)
     input.seek(0)
