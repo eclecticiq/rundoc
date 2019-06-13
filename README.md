@@ -1,10 +1,13 @@
 
-rundoc <img height="60px" src="https://paste.nul.one/2018-07-13_02.42.55.259669121_md5_ecd6014ae193f9ee519c9f423fbd69f1_logo.svg">
+rundoc <img height="60px" src="https://gitlab.com/nul.one/rundoc/raw/master/logo.svg?inline=false">
 ==================================================
 [![Chat on Freenode](https://img.shields.io/badge/chat-on%20freenode-brightgreen.svg)](https://webchat.freenode.net/?channels=%23rundoc&uio=MTE9MTk117)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Documentation Status](https://readthedocs.org/projects/rundoc/badge/?version=latest)](http://rundoc.readthedocs.io/en/latest/?badge=latest)
+
+**This is only a mirror. Please see the [official repository on GitLab](https://gitlab.com/nul.one/rundoc)**
+
 
 A command-line utility that runs code blocks from documentation written in markdown.
 
@@ -175,6 +178,7 @@ Define required environment variables anywhere in the documentaion with a specia
 - Empty values (e.g. `var1` and `var2` in example) will try to collect actual values from your system environment, so if `var1` was exported before you ran the docs, it will collect it's value as the default value and will not prompt you for it if `-a` option was not used.
 - All variables will be passed to env for every code block that's being executed.
 - If you use rundoc with tag option `-t`, environment blocks will be filtered in the same way as code blocks.
+- Code blocks will only be selected if no tags are specified on execution **or** any of the selected code blocks contains at least one of the env's tags (in the above case `version5`).
 
 #### Secrets
 
