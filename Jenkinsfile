@@ -27,7 +27,7 @@ stages {
   post {
     failure {
       slackSend(
-        channel: '#ft-delivery',
+        channel: '#team-delivery',
         color: 'bad',
         message: "Rundoc failed to build - Logs available at ${BUILD_URL}"
         )
