@@ -1,12 +1,12 @@
 
-rundoc <img height="60px" src="https://gitlab.com/nul.one/rundoc/raw/master/logo.svg?inline=false">
+rundoc <img height="60px" src="https://github.com/eclecticiq/rundoc/raw/master/logo.svg?inline=false">
 ==================================================
 [![Chat on Freenode](https://img.shields.io/badge/chat-on%20freenode-brightgreen.svg)](https://webchat.freenode.net/?channels=%23rundoc&uio=MTE9MTk117)
 [![PyPI version](https://badge.fury.io/py/rundoc.svg)](https://badge.fury.io/py/rundoc)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Documentation Status](https://readthedocs.org/projects/rundoc/badge/?version=latest)](http://rundoc.readthedocs.io/en/latest/?badge=latest)
 
-**This is only a mirror. Please see the [official repository on GitLab](https://gitlab.com/nul.one/rundoc)**
+**This is only a mirror. Please see the [official repository on GitLab](https://github.com/eclecticiq/rundoc)**
 
 
 A command-line utility that runs code blocks from documentation written in markdown.
@@ -27,7 +27,7 @@ Installation
 `pip3 install rundoc`
 
 ### install from git (latest master)
-`pip3 install -U git+https://gitlab.com/nul.one/rundoc.git`
+`pip3 install -U git+https://github.com/eclecticiq/rundoc.git`
 
 Usage
 -------------------------
