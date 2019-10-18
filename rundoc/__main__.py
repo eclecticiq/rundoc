@@ -74,8 +74,7 @@ _tag_options = [
 
 
 @click.group()
-@click.version_option(version=rundoc.__version__,
-    message="%(prog)s %(version)s - {}".format(rundoc.__copyright__))
+@click.version_option()
 @click.option('-d', '--debug', is_flag=True,
     help="Enable debug mode with output of each action in the log.")
 @click.pass_context
