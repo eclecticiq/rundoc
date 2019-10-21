@@ -6,9 +6,6 @@ rundoc <img height="60px" src="https://raw.githubusercontent.com/eclecticiq/rund
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Documentation Status](https://readthedocs.org/projects/rundoc/badge/?version=latest)](http://rundoc.readthedocs.io/en/latest/?badge=latest)
 
-**This is only a mirror. Please see the [official repository on GitLab](https://github.com/eclecticiq/rundoc)**
-
-
 A command-line utility that runs code blocks from documentation written in markdown.
 
 Overview
