@@ -3,9 +3,9 @@ A command-line utility that runs code blocks from markdown files.
 """
 __version__ = "0.4.3"
 __license__ = "BSD"
-__year__ = "2017-2018"
-__author__ = "Predrag Mandic"
-__author_email__ = "predrag@eclecticiq.com"
+__year__ = "2017-2019"
+__author__ = "Predrag Mandic, EclecticIQ"
+__author_email__ = "rundoc@eclecticiq.com"
 __copyright__ = "Copyright {} {} <{}>".format(
     __year__, __author__, __author_email__)
 
