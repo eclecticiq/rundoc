@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - dev
+    - TLC
 python:
   - "3.6"
   - "3.7"
