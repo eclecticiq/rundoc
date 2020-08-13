@@ -6,7 +6,11 @@ set -e
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
-script_dir=$(cd `dirname "$0"`; pwd; cd - 2>&1 >> /dev/null)
+script_dir=$(
+    cd $(dirname "$0")
+    pwd
+    cd - 2>&1 >>/dev/null
+)
 cd $script_dir
 
 ./regression.sh
@@ -23,4 +27,3 @@ py.test -vv --cov=rundoc --cov-report html
 coverage report
 
 exit 0
-

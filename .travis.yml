@@ -1,7 +1,6 @@
-
 language: python
 branches:
-  only: 
+  only:
     - master
     - dev
 python:

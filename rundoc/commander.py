@@ -1,15 +1,18 @@
 """
 Classes and tools for manipulating code block execution.
 """
-from collections import OrderedDict
-from prompt_toolkit import prompt
-from rundoc import ansi, RundocException, BadEnv, CodeFailed, BadInterpreter
-from rundoc.block import DocBlock
-from time import sleep
 import json
 import logging
 import os
 import sys
+from collections import OrderedDict
+from time import sleep
+
+from prompt_toolkit import prompt
+
+from rundoc import ansi, RundocException, BadEnv, CodeFailed
+from rundoc.block import DocBlock
+
 
 class OrderedEnv(OrderedDict):
     """Dictionary of environment variables.
@@ -25,12 +28,13 @@ class OrderedEnv(OrderedDict):
     that giving empty string as value means you don't with to change those
     variables).
     """
+
     def __init__(self, title=None):
         super().__init__()
         self.title = title
 
     def __str__(self):
-        return "\n".join([ var+"="+self[var] for var in self ])
+        return "\n".join([var + "=" + self[var] for var in self])
 
     def append(self, var, val, collect_existing_env=True):
         if collect_existing_env:
@@ -53,7 +57,7 @@ class OrderedEnv(OrderedDict):
                 raise BadEnv("Bad environment line: {}".format(line))
             self.append(var, val, collect_existing_env)
 
-    def prompt(self): # pragma: no cover
+    def prompt(self):  # pragma: no cover
         if not len(self):
             return
         print(self.title)
@@ -62,11 +66,11 @@ class OrderedEnv(OrderedDict):
         msg = msg.format(ansi.bold, ansi.end)
         print(msg)
         env_string = str(self)
-        env_string = prompt( '[env]\n', default = env_string )
+        env_string = prompt('[env]\n', default=env_string)
         self.clear()
         self.import_string(env_string, collect_existing_env=False)
 
-    def prompt_missing(self): # pragma: no cover
+    def prompt_missing(self):  # pragma: no cover
         missing = self.__class__(self.title)
         for var in self:
             if not self[var]:
@@ -96,13 +100,14 @@ class DocCommander(object):
     """
     Manages environment and DocBlock objects and executes them in succession.
     """
+
     def __init__(self):
         self.env = OrderedEnv(
             "\n{}==== env variables{}".format(ansi.bold, ansi.end)
-            )
+        )
         self.secrets = OrderedEnv(
             "\n{}==== secrets{}".format(ansi.bold, ansi.end)
-            )
+        )
         self.doc_blocks = []
         self.running = False
         self.step = None
@@ -112,7 +117,7 @@ class DocCommander(object):
     def doc_block(self):
         """Current doc_block."""
         if self.step:
-            return self.doc_blocks[self.step-1]
+            return self.doc_blocks[self.step - 1]
             # step-1 because steps start at 0 but are refered to as if they
             # start with 1
         else:
@@ -121,7 +126,7 @@ class DocCommander(object):
     def get_dict(self):
         return {
             'env': self.env,
-            'code_blocks': [ x.get_dict() for x in self.doc_blocks ]
+            'code_blocks': [x.get_dict() for x in self.doc_blocks]
         }
 
     def add(self, code, tags, light=False):
@@ -133,8 +138,8 @@ class DocCommander(object):
                     code=code,
                     tags=tags,
                     light=light,
-                    )
                 )
+            )
         except RundocException as re:
             logging.error(str(re))
             sys.exit(1)
@@ -146,7 +151,7 @@ class DocCommander(object):
                 ansi.red,
                 self.step,
                 ansi.end,
-                )
+            )
             )
         if self.output:
             self.output.write(
@@ -159,8 +164,8 @@ class DocCommander(object):
             print("Output written to: {}".format(self.output.name))
 
     def run(self,
-        step=1, ask=False, breakpoint=[], inherit_env=False, pause=0, retry=0,
-        retry_pause=1, output=None, **kwargs):
+            step=1, ask=False, breakpoint=[], inherit_env=False, pause=0, retry=0,
+            retry_pause=1, output=None, **kwargs):
         """Run all the doc_blocks one by one starting from `step`.
 
         Args:
@@ -183,7 +188,7 @@ class DocCommander(object):
         if inherit_env:
             self.env.inherit_existing_env()
             self.secrets.inherit_existing_env()
-        if ask>=1: # pragma: no cover
+        if ask >= 1:  # pragma: no cover
             self.env.prompt()
             self.secrets.prompt()
         else:
@@ -197,9 +202,9 @@ class DocCommander(object):
         self.running = True
         self.step = step
         ask_for_prompt_once = False
-        while self.step in range(step, len(self.doc_blocks)+1):
+        while self.step in range(step, len(self.doc_blocks) + 1):
             prompt_this_time = \
-                ask>=3 or ask_for_prompt_once or self.step in breakpoint
+                ask >= 3 or ask_for_prompt_once or self.step in breakpoint
             tags = '[{}] '.format(self.doc_block.interpreter)
             tags += ' '.join(self.doc_block.tags[1:])
             prompt_text = "\n{}=== Step {}/{} {}{}".format(
@@ -208,7 +213,7 @@ class DocCommander(object):
             if not prompt_this_time:
                 print(self.doc_block)
                 sleep(pause)
-            self.doc_block.run(prompt = prompt_this_time)
+            self.doc_block.run(prompt=prompt_this_time)
             ask_for_prompt_once = False
             if self.doc_block.last_run['retcode'] == 0:
                 print("{}==== Step {} done{}\n".format(
@@ -219,7 +224,7 @@ class DocCommander(object):
             self.running = False
             print("==== {}Failed at step {} with exit code '{}'{}\n".format(
                 ansi.red, self.step, self.doc_block.last_run['retcode'], ansi.end))
-            if ask>=2: # pragma: no cover
+            if ask >= 2:  # pragma: no cover
                 msg = "{}{}Press RETURN to try again at step {}.\n"
                 msg += "Ctrl+C to quit.{}"
                 print(msg.format(ansi.red, ansi.bold, self.step, ansi.end))
@@ -229,10 +234,9 @@ class DocCommander(object):
             if len(self.doc_block.runs) > retry:
                 self.write_output()
                 raise CodeFailed("Failed at step {} with exit code '{}'".format(
-                        self.step, self.doc_block.last_run['retcode']))
+                    self.step, self.doc_block.last_run['retcode']))
             print("{}Retry number {}/{}.".format(
                 ansi.bold, len(self.doc_block.runs), retry, ansi.end), end="")
             sleep(retry_pause)
         self.step = 0
         self.write_output()
-
