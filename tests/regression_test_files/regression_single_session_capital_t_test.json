@@ -1,50 +1,50 @@
 {
-  "code_blocks": [
-    {
-      "code": "echo \"setting value for test\"\ntest=some_value\n",
-      "interpreter": "bash",
-      "runs": [
+    "code_blocks": [
         {
-          "output": "setting value for test\n",
-          "retcode": 0,
-          "user_code": "echo \"setting value for test\"\ntest=some_value\n"
-        }
-      ],
-      "tags": [
-        "bash",
-        "test"
-      ]
-    },
-    {
-      "code": "print(\"this is python\")\n",
-      "interpreter": "python3",
-      "runs": [
+            "code": "echo \"setting value for test\"\ntest=some_value\n",
+            "interpreter": "bash",
+            "runs": [
+                {
+                    "output": "setting value for test\n",
+                    "retcode": 0,
+                    "user_code": "echo \"setting value for test\"\ntest=some_value\n"
+                }
+            ],
+            "tags": [
+                "bash",
+                "test"
+            ]
+        },
         {
-          "output": "this is python\n",
-          "retcode": 0,
-          "user_code": "print(\"this is python\")\n"
-        }
-      ],
-      "tags": [
-        "python3",
-        "test"
-      ]
-    },
-    {
-      "code": "echo $test\n",
-      "interpreter": "bash",
-      "runs": [
+            "code": "print(\"this is python\")\n",
+            "interpreter": "python3",
+            "runs": [
+                {
+                    "output": "this is python\n",
+                    "retcode": 0,
+                    "user_code": "print(\"this is python\")\n"
+                }
+            ],
+            "tags": [
+                "python3",
+                "test"
+            ]
+        },
         {
-          "output": "\n",
-          "retcode": 0,
-          "user_code": "echo $test\n"
+            "code": "echo $test\n",
+            "interpreter": "bash",
+            "runs": [
+                {
+                    "output": "\n",
+                    "retcode": 0,
+                    "user_code": "echo $test\n"
+                }
+            ],
+            "tags": [
+                "bash",
+                "test"
+            ]
         }
-      ],
-      "tags": [
-        "bash",
-        "test"
-      ]
-    }
-  ],
-  "env": {}
+    ],
+    "env": {}
 }
