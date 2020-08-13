@@ -9,10 +9,11 @@ __author_email__ = "rundoc@eclecticiq.com"
 __copyright__ = "Copyright {} {} <{}>".format(
     __year__, __author__, __author_email__)
 
-class ansi:
-    ''' 
+
+class Ansi:
+    """
     ANSI colors for pretty output.
-    '''
+    """
     red = '\033[91m'
     green = '\033[92m'
     blue = '\033[94m'
@@ -21,19 +22,22 @@ class ansi:
     underline = '\033[4m'
     end = '\033[0m'
 
+
 class RundocException(Exception):
     """Generic rundoc exception."""
     pass
+
 
 class BadEnv(RundocException):
     """Attempt to load invalid environment name/value"""
     pass
 
+
 class CodeFailed(RundocException):
     """Raise this when code block returns non-zero exit status."""
     pass
 
+
 class BadInterpreter(RundocException):
     """Selected interpreter not found or is not executable by current user."""
     pass
-
