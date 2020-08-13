@@ -34,7 +34,7 @@ _run_control_options = [
                  help="Number of retries for failed code blocks.",
                  ),
     click.option('-P', '--retry-pause', default=1.0, show_default=True,
-                 help="""Seconds to pause before retriyng failed code block. Actual pause will be max value of '--pause' and '--retry-pause'.""",
+                 help="""Seconds to pause before retrying failed code block. Actual pause will be max value of '--pause' and '--retry-pause'.""",
                  ),
     click.option('-o', '--output', type=click.File('w'),
                  help="""Output file. All codes, modifications and output of execution will be saved here. This file can be later used as an input argument to 'replay' command.""",
@@ -55,7 +55,7 @@ _run_specific_options = [
                  help="""Override default env variable values with values from existing environment. Useful when you export variables before running rundoc and expect them to override default values that are set in the docs.""",
                  ),
     click.option('-j', '--single-session', type=str, default='',
-                 help="""Run all blocks in a single interpreter session. By default, each block is run in seperate session, rendering definitions from previous ones lost. Specify the interpreter (only one) after this option.""",
+                 help="""Run all blocks in a single interpreter session. By default, each block is run in separate session, rendering definitions from previous ones lost. Specify the interpreter (only one) after this option.""",
                  ),
 ]
 

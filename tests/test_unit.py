@@ -420,7 +420,7 @@ def docblock_worker(docblock):
 
 def test_docblock__run_and_kill():
     # Note that kill will only send SIGKILL to the running process without
-    # any knowledge on how this will be handeled. What is guaranteed is that
+    # any knowledge on how this will be handled. What is guaranteed is that
     # process.poll() will contain some exitcode.
     docblock = rb.DocBlock(
         'echo "start"\nsleep 2\necho "this is test"',
@@ -570,7 +570,7 @@ def doccommander_worker(dc):
     try:
         dc.run()
     except ValueError as e:
-        # in case output file was closed prematuraly
+        # in case output file was closed prematurely
         pass
 
 
@@ -664,7 +664,7 @@ def test_parsers__mkd_to_html__select_test2():
                           'test2') == '<pre><code class="bash test1">ls\n</code></pre>\n\n<pre><code class="bash test2 rundoc_selected">ls -al\n</code></pre>'
 
 
-def test_parsers__mkd_to_html__select_bash_diselect_test2():
+def test_parsers__mkd_to_html__select_bash_deselect_test2():
     data = '```bash#test1\nls\n```\n\n```bash#test2\nls -al\n```'
     assert rp.mkd_to_html(data, 'bash', '',
                           'test2') == '<pre><code class="bash test1 rundoc_selected">ls\n</code></pre>\n\n<pre><code class="bash test2">ls -al\n</code></pre>'

@@ -166,7 +166,7 @@ class DocBlock(object):
         interpreter (str): Interpreter used to run the code.
         code (str): Base code loaded during initialization.
         process (subprocess.Popen): Process object running the interpreter.
-        runs (list): List of dictinaries, each containing the following:
+        runs (list): List of dictionaries, each containing the following:
             'user_code': User modified version of the code (will be used
                 instead of main code unless it's set to None or empty string).
             'output': Full output of executed code block.

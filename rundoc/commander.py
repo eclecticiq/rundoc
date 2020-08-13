@@ -118,7 +118,7 @@ class DocCommander(object):
         """Current doc_block."""
         if self.step:
             return self.doc_blocks[self.step - 1]
-            # step-1 because steps start at 0 but are refered to as if they
+            # step-1 because steps start at 0 but are referred to as if they
             # start with 1
         else:
             return None

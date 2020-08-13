@@ -44,7 +44,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
             contain all of them (order not important).
         must_not_have_tags (str): Like 'tags' but require markdown code block
             to contain non of them.
-        light (bool): Will use light backgrond color theme if set to True.
+        light (bool): Will use light background color theme if set to True.
             Defaults to False.
 
     Returns:
@@ -119,7 +119,7 @@ def parse_doc(input, tags="", must_have_tags="", must_not_have_tags="",
 def parse_output(input, exact_timing=False, light=False, **kwargs):
     """Load json output, create and return DocCommander object.
 
-    Each code block recorded in the otput will be parsed and only code from
+    Each code block recorded in the output will be parsed and only code from
     successful attempts will be turned into code blocks for new session. The
     goal is to use original or user modified inputs as a new script.
 
@@ -130,7 +130,7 @@ def parse_output(input, exact_timing=False, light=False, **kwargs):
             and pause between blocks and tries will be calculated from the
             timestamps recorded in the file. The goal is to recreate all exact
             steps that users may have done. Defaults to False.
-        light (bool): Will use light backgrond color theme if set to True.
+        light (bool): Will use light background color theme if set to True.
             Defaults to False.
 
     Returns:

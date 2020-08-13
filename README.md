@@ -82,7 +82,7 @@ You can force the prompt on specific steps using `-b` or `--breakpoint` option f
 
 #### Pause
 
-If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the puase. (This option does nothing in conjunction with `-aaa`):
+If you need to add a delay between codeblocks, you can add `-p` or `--pause` option to specify number of seconds for the pause. (This option does nothing in conjunction with `-aaa`):
 
 ```bash
 rundoc run -p 2 input.md
@@ -134,7 +134,7 @@ rundoc run input.md -o output.json
 
 #### Tags
 
-By default, rundoc executes all fenced code blocks that have highlithing tag set in markdown file. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
+By default, rundoc executes all fenced code blocks that have highlighting tag set in markdown file. If you want to limit execution to subset of the code blocks, use tags. Tags can be specified with `-t` or `--tags` option followed by hash (#) separated list of tags:
 
 ```bash
 rundoc run -t bash#python3 input.md
@@ -152,16 +152,16 @@ In this syntax, multiple tags are applied to same code block and are separated w
 
 #### More tags
 
-In addition to `-t` or `--tags` option, you can also use the following 2 options to furthere fine-tune your code block filtering:
+In addition to `-t` or `--tags` option, you can also use the following 2 options to further fine-tune your code block filtering:
 
 - `-T` or `--must-have-tags` - same as `--tags` but it requires all listed tags to be present in the markdown code block or it will be skipped. The order of tags is not important.
-- `-N`, or `--must-not-have-tags` - same as `--tags` but it requres that **none** of the listed tags is present in the markdown code block. It is used to filter out unwanted ones.
+- `-N`, or `--must-not-have-tags` - same as `--tags` but it requires that **none** of the listed tags is present in the markdown code block. It is used to filter out unwanted ones.
 
 You can use any of the tags features individually or combine them.
 
 #### Environment variables
 
-Define required environment variables anywhere in the documentaion with a special code block tagged as `env` or `environment` at the beginning:
+Define required environment variables anywhere in the documentation with a special code block tagged as `env` or `environment` at the beginning:
 
     ```env#version5
     var1=
@@ -179,7 +179,7 @@ Define required environment variables anywhere in the documentaion with a specia
 
 #### Secrets
 
-You can define required credentials or other secrets anywhere in the documentaion as a special code block tagged as `secret` or `secrets` at the beginning:
+You can define required credentials or other secrets anywhere in the documentation as a special code block tagged as `secret` or `secrets` at the beginning:
 
     ```secrets#production
     username=
