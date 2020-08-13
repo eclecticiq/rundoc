@@ -128,18 +128,18 @@ else
 fi
 rundoc run single_session.md -o ${out_prefix}_single_session_plain.json > /dev/null
 strip_timestamps ${out_prefix}_single_session_plain.json
-rundoc run single_session.md -t test -o ${out_prefix}_single_session_t_test.json > /dev/null
-strip_timestamps ${out_prefix}_single_session_t_test.json
-rundoc run single_session.md -T test -o ${out_prefix}_single_session_T_test.json > /dev/null
-strip_timestamps ${out_prefix}_single_session_T_test.json
+rundoc run single_session.md -t test -o ${out_prefix}_single_session_capital_t_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_capital_t_test.json
+rundoc run single_session.md -T test -o ${out_prefix}_single_session_capital_t_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_capital_t_test.json
 rundoc run single_session.md -j bash -o ${out_prefix}_single_session_j_bash.json > /dev/null
 strip_timestamps ${out_prefix}_single_session_j_bash.json
 rundoc run single_session.md -j bash -t test -o ${out_prefix}_single_session_j_bash_t_test.json > /dev/null
 strip_timestamps ${out_prefix}_single_session_j_bash_t_test.json
-rundoc run single_session.md -j bash -T test -o ${out_prefix}_single_session_j_bash_T_test.json > /dev/null
-strip_timestamps ${out_prefix}_single_session_j_bash_T_test.json
+rundoc run single_session.md -j bash -T test -o ${out_prefix}_single_session_j_bash_capital_t_test.json > /dev/null
+strip_timestamps ${out_prefix}_single_session_j_bash_capital_t_test.json
 if ! $generate; then
-    for name in plain t_test T_test j_bash j_bash_t_test j_bash_T_test; do
+    for name in plain t_test capital_t_test j_bash j_bash_t_test j_bash_capital_t_test; do
         ((tests++))
         # compare with existing ones
         diff regression_single_session_${name}.json \
